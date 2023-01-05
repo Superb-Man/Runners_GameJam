@@ -5,9 +5,11 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 450
 PLAYER_SIZE = (28, 37)
 WALL_SIZE = (80, 20)
+VWALL_SIZE = (20,80)
+KATA_SIZE = (20, 36)
 
 pygame.display.set_caption("Runners")
-screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 bg_image = pygame.image.load('Assets/Images/bg.jpg').convert()
 bg_image = pygame.transform.scale(bg_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -34,33 +36,46 @@ players.append(player_walk3)
 player_index = 0
 player_image = players[player_index]
 
-player_rect = player_image.get_rect(midbottom = (PLAYER_SIZE[0]/2+0, 300))
-
+player_rect = player_image.get_rect(bottomleft = (0, 180))
 
 wall = pygame.image.load('Assets/Images/ww.jpg').convert_alpha()
 wall = pygame.transform.scale(wall, WALL_SIZE)
 wall.set_colorkey(BLACK)
 
 
-WALL_POS = [(0, WALL_SIZE[1]+300),
-            (150, WALL_SIZE[1]+240),
-            (275, WALL_SIZE[1]+335),
-            (400, WALL_SIZE[1]+260),
-            (550, WALL_SIZE[1]+150),
-            (675, WALL_SIZE[1]+300),
-            (500, 100)
+vwall = pygame.image.load('Assets/Images/vww.jpg').convert_alpha()
+vwall = pygame.transform.scale(vwall, VWALL_SIZE)
+vwall.set_colorkey(BLACK)
+
+WALL_POS = [(0, 200),
+            (140, 320),
+            (265, 125),
+            (400, 260),
+            (550, 150),
+            (625, 300),
+            (450,450)
             ]
 
 wall_rect = []
 for i in range(len(WALL_POS)):
-    wall_rect.append(wall.get_rect(midbottom = WALL_POS[i]))
+    if i== len(WALL_POS) - 1 :
+        wall_rect.append(vwall.get_rect(bottomleft = WALL_POS[i]))
+    else:
+        wall_rect.append(wall.get_rect(bottomleft = WALL_POS[i]))
+
+
+kata = pygame.image.load('Assets/Images/k2.png').convert_alpha()
+kata = pygame.transform.scale(kata, KATA_SIZE)
+# kata.set_colorkey(BLACK)
+kata_rect = kata.get_rect(bottomleft = (0, 450))
 
 
 GRAVITY = 0.1
 VELOCITY = 0
 SIDEMOVE = 2
 GAMESTATE = 0
-OFFSET = 3
+OFFSET = 2
+VOFFSET = 6
 JUMP = True
 LEFT = True
 RIGHT = True
@@ -74,7 +89,10 @@ while True:
     if GAMESTATE == 0:
         screen.blit(bg_image, (0, 0))
         for i in range(len(WALL_POS)):
-            screen.blit(wall, wall_rect[i])
+            if len(WALL_POS) - 1 == i:
+                screen.blit(vwall, wall_rect[i])
+            else :
+                screen.blit(wall, wall_rect[i])
 
         screen.blit(player_image, player_rect)
 
@@ -84,17 +102,24 @@ while True:
             player_rect.bottom = 450
             VELOCITY = 0
             JUMP = True
+        elif player_rect.top < 0:
+            player_rect.top = 0
+            VELOCITY = 0
+            JUMP = False
         else:
             for i in range(len(WALL_POS)):
-                if player_rect.bottom >= WALL_POS[i][1] - WALL_SIZE[1] and player_rect.bottom <= WALL_POS[i][
-                    1] - WALL_SIZE[1] + 5 and player_rect.left >= WALL_POS[i][0] - WALL_SIZE[0] / 2 - PLAYER_SIZE[
-                    0] and player_rect.right <= WALL_POS[i][0] + WALL_SIZE[0] / 2 + PLAYER_SIZE[0] and VELOCITY > 0:
-                    player_rect.bottom = WALL_POS[i][1] - WALL_SIZE[1]
+                j = 0
+                if len(WALL_POS) - 1 == i:
+                    j = 1
+                if player_rect.bottom >= WALL_POS[i][1]-WALL_SIZE[(j+1)%2]-VOFFSET and player_rect.bottom <= WALL_POS[i][
+                    1]-WALL_SIZE[(j+1)%2]+VOFFSET and player_rect.left >= WALL_POS[i][0] - PLAYER_SIZE[
+                    0] and player_rect.right <= WALL_POS[i][0] + WALL_SIZE[j] + PLAYER_SIZE[0] and VELOCITY > 0:
+                    player_rect.bottom = WALL_POS[i][1] - WALL_SIZE[(j+1)%2]
                     VELOCITY = 0
                     JUMP = True
-                elif player_rect.top >= WALL_POS[i][1] - 5 and player_rect.top <= WALL_POS[i][
-                    1] and player_rect.left >= WALL_POS[i][0] - WALL_SIZE[0] / 2 - PLAYER_SIZE[
-                    0] and player_rect.right <= WALL_POS[i][0] + WALL_SIZE[0] / 2 + PLAYER_SIZE[0] and VELOCITY < 0:
+                elif player_rect.top >= WALL_POS[i][1]-VOFFSET and player_rect.top <= WALL_POS[i][
+                    1]+VOFFSET and player_rect.left >= WALL_POS[i][0] - PLAYER_SIZE[
+                    0] and player_rect.right <= WALL_POS[i][0] + WALL_SIZE[j] + PLAYER_SIZE[0] and VELOCITY < 0:
                     player_rect.top = WALL_POS[i][1]
                     VELOCITY = 0
         player_rect.bottom += VELOCITY
@@ -104,12 +129,15 @@ while True:
             player_rect.left = 2
             LEFT = False
         for i in range(len(WALL_POS)):
-            if ((player_rect.top < WALL_POS[i][1] - WALL_SIZE[1] and player_rect.bottom > WALL_POS[i][
+            j = 0
+            if len(WALL_POS) - 1 == i:
+                j = 1;
+            if ((player_rect.top < WALL_POS[i][1] - WALL_SIZE[(j+1)%2] and player_rect.bottom > WALL_POS[i][
                 1]) or (player_rect.top < WALL_POS[i][1] and player_rect.top > WALL_POS[i][1] - WALL_SIZE[
-                1]) or (player_rect.bottom > WALL_POS[i][1] - WALL_SIZE[1] and player_rect.bottom < WALL_POS[i][
-                1])) and (player_rect.left > WALL_POS[i][0] + WALL_SIZE[0] / 2 - OFFSET and player_rect.left < WALL_POS[i][
-                0] + WALL_SIZE[0] / 2 + OFFSET):
-                player_rect.left = WALL_POS[i][0] + WALL_SIZE[0] / 2
+                (j+1)%2]) or (player_rect.bottom > WALL_POS[i][1] - WALL_SIZE[(j+1)%2] and player_rect.bottom < WALL_POS[i][
+                1])) and (player_rect.left > WALL_POS[i][0] + WALL_SIZE[j] - OFFSET and player_rect.left < WALL_POS[i][
+                0] + WALL_SIZE[j] + OFFSET):
+                player_rect.left = WALL_POS[i][0] + WALL_SIZE[j]
                 LEFT = False
 
         RIGHT = True
@@ -117,12 +145,15 @@ while True:
             player_rect.right = SCREEN_WIDTH-2
             RIGHT = False
         for i in range(len(WALL_POS)):
-            if ((player_rect.top < WALL_POS[i][1] - WALL_SIZE[1] and player_rect.bottom > WALL_POS[i][
+            j = 0
+            if len(WALL_POS) - 1 == i:
+                j = 1;
+            if ((player_rect.top < WALL_POS[i][1] - WALL_SIZE[(j+1)%2] and player_rect.bottom > WALL_POS[i][
                 1]) or (player_rect.top < WALL_POS[i][1] and player_rect.top > WALL_POS[i][1] - WALL_SIZE[
-                1]) or (player_rect.bottom > WALL_POS[i][1] - WALL_SIZE[1] and player_rect.bottom < WALL_POS[i][
-                1])) and (player_rect.right > WALL_POS[i][0] - WALL_SIZE[0] / 2 - OFFSET and player_rect.right < WALL_POS[i][
-                0] - WALL_SIZE[0] / 2 + OFFSET):
-                player_rect.right = WALL_POS[i][0] - WALL_SIZE[0] / 2
+                (j+1)%2]) or (player_rect.bottom > WALL_POS[i][1] - WALL_SIZE[(j+1)%2] and player_rect.bottom < WALL_POS[i][
+                1])) and (player_rect.right > WALL_POS[i][0] - OFFSET and player_rect.right < WALL_POS[i][
+                0] + OFFSET):
+                player_rect.right = WALL_POS[i][0]
                 RIGHT = False
 
         keys = pygame.key.get_pressed()
