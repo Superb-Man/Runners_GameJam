@@ -48,18 +48,18 @@ pygame.display.set_caption("First pygame")
 screen=pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HIGHT))
 clock=pygame.time.Clock()
 #background
-sky_image=pygame.image.load('workshop/graphics/Sky.png').convert()
-ground_image=pygame.image.load('workshop/graphics/ground.png').convert()
+sky_image=pygame.image.load('graphics/Sky.png').convert()
+ground_image=pygame.image.load('graphics/ground.png').convert()
 
 #fonts
-font=pygame.font.Font('workshop/font/Pixeltype.ttf',50)
+font=pygame.font.Font('font/Pixeltype.ttf',50)
 gameover_font=font.render('Game Over',False,(64,64,64))
 gameover_font_rect=gameover_font.get_rect(center=(400,50))
 
 #obstacles
 Snails=[]
-snail_image1=pygame.image.load('workshop/graphics/snail/snail1.png').convert_alpha()
-snail_image2=pygame.image.load('workshop/graphics/snail/snail2.png').convert_alpha()
+snail_image1=pygame.image.load('graphics/snail/snail1.png').convert_alpha()
+snail_image2=pygame.image.load('graphics/snail/snail2.png').convert_alpha()
 snail_index=0
 Snails.append(snail_image1)
 Snails.append(snail_image2)
@@ -70,8 +70,8 @@ snail_image=Snails[snail_index]
 snail_rect_list=[]
 #bird animation
 Birds=[]
-fly1=pygame.image.load('workshop/graphics/Fly/Fly1.png').convert_alpha()
-fly2=pygame.image.load('workshop/graphics/Fly/Fly2.png').convert_alpha()
+fly1=pygame.image.load('graphics/Fly/Fly1.png').convert_alpha()
+fly2=pygame.image.load('graphics/Fly/Fly2.png').convert_alpha()
 Birds.append(fly1)
 Birds.append(fly2)
 bird_index=0
@@ -80,15 +80,15 @@ fly_image=Birds[bird_index]
 
 #player animation
 players=[]
-player_walk1=pygame.image.load('workshop/graphics/Player/player_walk_1.png').convert_alpha()
-player_walk2=pygame.image.load('workshop/graphics/Player/player_walk_2.png').convert_alpha()
-player_jump=pygame.image.load('workshop/graphics/Player/jump.png').convert_alpha()
+player_walk1=pygame.image.load('graphics/Player/player_walk_1.png').convert_alpha()
+player_walk2=pygame.image.load('graphics/Player/player_walk_2.png').convert_alpha()
+player_jump=pygame.image.load('graphics/Player/jump.png').convert_alpha()
 players.append(player_walk1)
 players.append(player_walk2)
 player_index=0
 player_image=players[player_index]
 
-player_stand=pygame.image.load('workshop/graphics/Player/player_stand.png').convert_alpha()
+player_stand=pygame.image.load('graphics/Player/player_stand.png').convert_alpha()
 player_stand_scaled=pygame.transform.rotozoom(player_stand,0,2)
 player_stand_rect=player_stand_scaled.get_rect(center=(400,200))
 player_rect=player_image.get_rect(midbottom=(80,300))

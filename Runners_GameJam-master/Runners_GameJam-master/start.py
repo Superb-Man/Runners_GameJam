@@ -76,12 +76,12 @@ while True:
              pygame.quit()
              exit()
          if Game_Active:
-            if event.type==pygame.KEYDOWN:
+            if event.type==pygame.K_DOWN:
                 print("KEY DOWN")
                 player_gravity=-5
-                if event.key==pygame.K_SPACE:
-                    print('jump')
-            if event.type==pygame.KEYUP:
+                # if event.key==pygame.K_SPACE:
+                #     print('jump')
+            if event.type==pygame.K_UP:
                 print("KEY UP")
             if event.type==pygame.MOUSEBUTTONDOWN:
                 if player_rect.collidepoint(event.pos):
@@ -98,7 +98,7 @@ while True:
                     Game_Active=True
                     snail_rect_list=[]
                     start_time=int(pygame.time.get_ticks()/1000)
-                    print('game activated')
+                    #print('game activated')
                  
                     
     if Game_Active:   
@@ -137,9 +137,15 @@ while True:
         
         #keyboard input
         keys=pygame.key.get_pressed()
-        #print(keys)
-        if keys[pygame.K_u]:
-            print("Jump")
+        # print(keys)
+        if keys[pygame.K_UP]:
+            player_gravity = -5
+        if keys[pygame.K_DOWN] :
+            player_gravity = 5
+        if keys[pygame.K_RIGHT] :
+            player_rect.right+=2 ;
+        if keys[pygame.K_LEFT] :
+            player_rect.left-=2 ;
     else:
         screen.fill((94,129,162))
         screen.blit(player_stand_scaled,player_stand_rect)
