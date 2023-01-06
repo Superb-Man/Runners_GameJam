@@ -125,7 +125,7 @@ def lev1():
         1])) and (runners.player_rect.right > runners.BUTTON_POS[0] - runners.OFFSET and runners.player_rect.right < runners.BUTTON_POS[
         0] + runners.OFFSET):
         runners.player_rect.right = runners.BUTTON_POS[0]
-        RIGHT = False
+        runners.RIGHT = False
     elif ((runners.player_rect.top < runners.door_rect.bottom - runners.DOOR_SIZE[1] and runners.player_rect.bottom > runners.door_rect.bottom) or (
            runners.player_rect.top < runners.door_rect.bottom and runners.player_rect.top > runners.door_rect.bottom - runners.DOOR_SIZE[
         1]) or (runners.player_rect.bottom > runners.door_rect.bottom - runners.DOOR_SIZE[
