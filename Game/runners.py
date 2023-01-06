@@ -156,9 +156,10 @@ ultaMultipleKata(5, 267, 155)
 ultaMultipleKata(2, 630, 330)
 
 GRAVITY = 0.1
+LEVEL = 1
 VELOCITY = 0
 SIDEMOVE = 2
-GAMESTATE = 0
+SCENESHIFT = False
 OFFSET = 2
 VOFFSET = 6
 JUMP = True
@@ -168,8 +169,8 @@ DEAD = False
 DEAD_TIME = 0
 DIRECTION = RIGHTDIRECTION
 BUTTONPRESS = False
-bg=True
-bg1=False
+BG = True
+BG2 = False
 
 
 while True:
@@ -178,29 +179,31 @@ while True:
             pygame.quit()
             exit()
 
-    if GAMESTATE == 0:
+    if SCENESHIFT == False:
         screen.blit(bg_image, bg_image_rect)
         screen.blit(bg_image1,bg_image1_rect)
         screen.blit(door, door_rect)
 
         screen.blit(button, button_rect)
 
+        #Door open
         if BUTTONPRESS:
             doorOpen()
 
+        #Wall
         for i in range(len(WALL_POS)):
             if len(WALL_POS) - 1 == i:
                 screen.blit(vwall, wall_rect[i])
             else :
                 screen.blit(wall, wall_rect[i])
 
-
+        #Kata
         for i in range(len(KATA_POS)):
             screen.blit(kata, kata_rect[i])
         for i in range(len(ULTAKATA_POS)):
             screen.blit(ultakata, ultakata_rect[i])
 
-
+        #Dead with Kata
         for i in range(len(KATA_POS)):
             j = 0
             if ((player_rect.top <= KATA_POS[i][1] - KATA_SIZE[(j+1)%2] and player_rect.bottom >= KATA_POS[i][
@@ -219,6 +222,7 @@ while True:
                 DEAD = True
 
 
+        #Death Animation/Player Image Load
         if DEAD:
             DEAD_TIME += 0.25
             player_dead_rect = player_dead.get_rect(bottomleft=(player_rect.left, player_rect.bottom))
@@ -235,6 +239,7 @@ while True:
             screen.blit(player_image, player_rect)
 
 
+        #Vertical Movement
         VELOCITY += GRAVITY
         if player_rect.bottom >= 450:
             player_rect.bottom = 450
@@ -274,6 +279,8 @@ while True:
                     VELOCITY = 0
         player_rect.bottom += VELOCITY
 
+
+        #Left Movement
         LEFT = True
         if player_rect.left <= 2:
             player_rect.left = 2
@@ -297,20 +304,15 @@ while True:
                 player_rect.left = WALL_POS[i][0] + WALL_SIZE[j]
                 LEFT = False
 
+
+        #Right Movement
         RIGHT = True
-        if player_rect.right >= SCREEN_WIDTH-2 and not (player_rect.top >= DOOR_POS[1]-DOOR_SIZE[1]-OFFSET and player_rect.bottom <= DOOR_POS[1]+OFFSET) and GAMESTATE==0:
-            GAMESTATE=1
-            print(GAMESTATE)
-
-
-            # if bg_image1_rect.x==0:
-            #     bg=True
-            #     bg1=False
-            #     bg_image_rect.x=bg_image1_rect.x+SCREEN_WIDTH
-            # if bg_image_rect.x == 0:
-            #     bg1=True
-            #     bg=True
-            #     bg_image1_rect.x = bg_image_rect.x + SCREEN_WIDTH
+        if player_rect.right >= SCREEN_WIDTH-2:
+            if (player_rect.top >= DOOR_POS[1]-DOOR_SIZE[1]-OFFSET and player_rect.bottom <= DOOR_POS[1]+OFFSET) and SCENESHIFT == False:
+                SCENESHIFT = True
+            else:
+                player_rect.right = SCREEN_WIDTH-2
+                RIGHT = False
 
         elif ((player_rect.top < BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom > BUTTON_POS[
                 1]) or (player_rect.top < BUTTON_POS[1] and player_rect.top > BUTTON_POS[1] - BUTTON_SIZE[
@@ -337,6 +339,10 @@ while True:
                 player_rect.right = WALL_POS[i][0]
                 RIGHT = False
 
+
+
+
+        #Keys pressed
         keys = pygame.key.get_pressed()
 
         if not DEAD:
@@ -344,18 +350,6 @@ while True:
                 VELOCITY = -5
                 player_rect.bottom -= 1
                 JUMP = False
-            # if keys[pygame.K_UP] and JUMP :
-            #     for i in range(0 , len(WALL_POS)) :
-            #         position = 0
-            #         while player_rect.collidepoint(WALL_POS[i]+position) :
-            #             position+=1
-            #             print('TRUE')
-            #             VELOCITY = -5
-            #             player_rect.bottom -= 1
-            #
-            #
-            #             if position + WALL_POS[i] > WALL_POS[i] +
-            #     JUMP = False
             if keys[pygame.K_LEFT] and LEFT:
                 DIRECTION = LEFTDIRECTION
                 playerAnimation()
@@ -365,21 +359,23 @@ while True:
                 playerAnimation()
                 player_rect.left += SIDEMOVE
 
-    if GAMESTATE==1:
-        if bg:
-            print(GAMESTATE)
+    if SCENESHIFT == True:
+        if BG:
             screen.blit(bg_image, bg_image_rect)
             screen.blit(bg_image1, bg_image1_rect)
             bg_image_rect.x = bg_image_rect.x - 10
             bg_image1_rect.x = bg_image_rect.x + SCREEN_WIDTH
             player_rect.x = PLAYER_POS[0]
             player_rect.y = PLAYER_POS[1]-50
-            if bg_image1_rect.x==0:
-                GAMESTATE=0
+            if bg_image1_rect.x == 0:
+                SCENESHIFT = False
+                door_rect = door.get_rect(bottomleft = DOOR_POS)
+                BUTTONPRESS = False
+                
+                BG=False
+                BG2=True
 
-                bg=False
-                bg1=True
-        elif bg1:
+        elif BG2:
             screen.blit(bg_image, bg_image_rect)
             screen.blit(bg_image1, bg_image1_rect)
 
@@ -389,10 +385,12 @@ while True:
             player_rect.x = PLAYER_POS[0]
             player_rect.y = PLAYER_POS[1] - 50
             if bg_image_rect.x == 0:
-                GAMESTATE = 0
+                SCENESHIFT = False
+                door_rect = door.get_rect(bottomleft = DOOR_POS)
+                BUTTONPRESS = False
 
-                bg = False
-                bg1 = True
+                BG = False
+                BG2 = True
 
 
 
