@@ -1,4 +1,5 @@
 import pygame
+pygame.init()
 
 RIGHTDIRECTION = 0
 LEFTDIRECTION = 1
@@ -11,7 +12,9 @@ VWALL_SIZE = (20,40)
 KATA_SIZE = (15, 30)
 DOOR_SIZE = (10, 65)
 PLAYER_POS = (0, 180)
-DOOR_POS = (790, 150)
+DOOR_POS = (790, 220)
+BUTTON_SIZE = (80, 20)
+BUTTON_POS = (400, 260)
 
 pygame.display.set_caption("Runners")
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -77,15 +80,21 @@ vwall.set_colorkey(BLACK)
 door = pygame.image.load('Assets/Images/door.jpg').convert_alpha()
 door = pygame.transform.scale(door, DOOR_SIZE)
 door.set_colorkey(BLACK)
+door_rect = door.get_rect(bottomleft = DOOR_POS)
+
+button = pygame.image.load('Assets/Images/b.jpg').convert_alpha()
+button = pygame.transform.scale(button, BUTTON_SIZE)
+button.set_colorkey(BLACK)
+button_rect = button.get_rect(bottomleft = BUTTON_POS)
 
 WALL_POS = [(0, 200),
             (140, 320),
             (265, 125),
-            (400, 260),
-            (550, 150),
+            (305, 125),
+            (615, 120),
             (625, 300),
-            (760, 170),
-            (760, 235),
+            (760, 155),
+            (760, 240),
             (450, 450)
             ]
 
@@ -101,7 +110,8 @@ kata = pygame.image.load('Assets/Images/k22.png').convert_alpha()
 kata = pygame.transform.scale(kata, KATA_SIZE)
 ultakata = pygame.image.load('Assets/Images/uk22.png').convert_alpha()
 ultakata = pygame.transform.scale(ultakata, KATA_SIZE)
-# kata.set_colorkey(BLACK)
+kata.set_colorkey(BLACK)
+ultakata.set_colorkey(BLACK)
 
 KATA_POS = []
 kata_rect = []
@@ -120,9 +130,9 @@ def ultaMultipleKata(count, bottomLeftX, bottomLeftY):
         ultakata_rect.append(ultakata.get_rect(bottomleft = (bottomLeftX, bottomLeftY)))
         bottomLeftX += KATA_SIZE[0]
 
-multipleKata(3, 0, 450)
+multipleKata(3, 80, 450)
 multipleKata(5, 500, 450)
-ultaMultipleKata(2, 270, 155)
+ultaMultipleKata(5, 267, 155)
 ultaMultipleKata(2, 630, 330)
 
 GRAVITY = 0.1
@@ -137,6 +147,7 @@ RIGHT = True
 DEAD = False
 DEAD_TIME = 0
 DIRECTION = RIGHTDIRECTION
+BUTTONPRESS = False
 
 #def colide(x , y) :
 
@@ -148,8 +159,11 @@ while True:
             exit()
 
     if GAMESTATE == 0:
+
         screen.blit(bg_image, (0, 0))
-        screen.blit(door,DOOR_POS)
+        screen.blit(door, door_rect)
+        screen.blit(button, button_rect)
+
         for i in range(len(WALL_POS)):
             if len(WALL_POS) - 1 == i:
                 screen.blit(vwall, wall_rect[i])
@@ -182,7 +196,7 @@ while True:
 
 
         if DEAD:
-            DEAD_TIME += 0.5
+            DEAD_TIME += 0.25
             player_dead_rect = player_dead.get_rect(bottomleft=(player_rect.left, player_rect.bottom))
             dead_image = dead_img[DIRECTION]
             screen.blit(dead_image, player_dead_rect)
@@ -206,6 +220,13 @@ while True:
             player_rect.top = 0
             VELOCITY = 0
             JUMP = False
+        elif player_rect.bottom >= BUTTON_POS[1]-BUTTON_SIZE[1]-VOFFSET and player_rect.bottom <= BUTTON_POS[
+            1]-BUTTON_SIZE[1]+VOFFSET and player_rect.left >= BUTTON_POS[0] - PLAYER_SIZE[
+            0] and player_rect.right <= BUTTON_POS[0] + BUTTON_SIZE[0] + PLAYER_SIZE[0] and VELOCITY > 0:
+            player_rect.bottom = BUTTON_POS[1] - BUTTON_SIZE[1]
+            VELOCITY = 0
+            JUMP = True
+            BUTTONPRESS = True
         else:
             for i in range(len(WALL_POS)):
                 j = 0
@@ -228,6 +249,7 @@ while True:
         if player_rect.left <= 2:
             player_rect.left = 2
             LEFT = False
+        
         for i in range(len(WALL_POS)):
             j = 0
             if len(WALL_POS)-1 == i:
@@ -288,4 +310,3 @@ while True:
     pygame.display.update()
 
     clock.tick(60)
-lock.tick(60)
