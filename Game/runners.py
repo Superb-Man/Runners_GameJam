@@ -7,6 +7,7 @@ PLAYER_SIZE = (28, 37)
 WALL_SIZE = (80, 20)
 VWALL_SIZE = (20,80)
 KATA_SIZE = (20, 36)
+PLAYER_POS = (0, 180)
 
 pygame.display.set_caption("Runners")
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -18,6 +19,8 @@ def playerAnimation():
     global player_index, player_image, players
     player_index += 0.15
     player_image = players[int(player_index) % 3]
+
+
 
 
 players = []
@@ -36,7 +39,11 @@ players.append(player_walk3)
 player_index = 0
 player_image = players[player_index]
 
-player_rect = player_image.get_rect(bottomleft = (0, 180))
+player_dead = pygame.image.load('Assets/Images/pd.jpg').convert_alpha()
+player_dead = pygame.transform.scale(player_dead, PLAYER_SIZE)
+player_dead.set_colorkey(BLACK)
+
+player_rect = player_image.get_rect(bottomleft = PLAYER_POS)
 
 wall = pygame.image.load('Assets/Images/ww.jpg').convert_alpha()
 wall = pygame.transform.scale(wall, WALL_SIZE)
@@ -64,13 +71,25 @@ for i in range(len(WALL_POS)):
         wall_rect.append(wall.get_rect(bottomleft = WALL_POS[i]))
 
 
-kata = pygame.image.load('Assets/Images/k2.png').convert_alpha()
+kata = pygame.image.load('Assets/Images/k22.png').convert_alpha()
 kata = pygame.transform.scale(kata, KATA_SIZE)
 # kata.set_colorkey(BLACK)
-kata_rect = kata.get_rect(bottomleft = (0, 450))
 
+KATA_POS = []
 
-GRAVITY = 0.1
+kata_rect = []
+
+def multipleKata(count, bottomLeftX, bottomLeftY, vertical):
+    for i in range(count):
+        KATA_POS.append((bottomLeftX, bottomLeftY))
+        kata_rect.append(kata.get_rect(bottomleft = (bottomLeftX, bottomLeftY)))
+        if not vertical:
+            bottomLeftX += KATA_SIZE[0]
+
+multipleKata(3, 0, 450, False)
+multipleKata(5, 500, 450, False)
+
+GRAVITY = 0.05
 VELOCITY = 0
 SIDEMOVE = 2
 GAMESTATE = 0
@@ -79,6 +98,7 @@ VOFFSET = 6
 JUMP = True
 LEFT = True
 RIGHT = True
+DEAD = False
 
 while True:
     for event in pygame.event.get():
@@ -94,7 +114,26 @@ while True:
             else :
                 screen.blit(wall, wall_rect[i])
 
-        screen.blit(player_image, player_rect)
+
+        for i in range(len(KATA_POS)):
+            screen.blit(kata, kata_rect[i])
+
+
+        for i in range(len(WALL_POS)):
+            j = 0
+            if ((player_rect.top <= KATA_POS[i][1] - KATA_SIZE[(j+1)%2] and player_rect.bottom >= KATA_POS[i][
+                1]) or (player_rect.top <= KATA_POS[i][1] and player_rect.top >= KATA_POS[i][1] - KATA_SIZE[
+                (j+1)%2]) or (player_rect.bottom >= KATA_POS[i][1] - KATA_SIZE[(j+1)%2] and player_rect.bottom <= KATA_POS[i][
+                1])) and (player_rect.left > KATA_POS[i][0] - OFFSET and player_rect.left < KATA_POS[i][
+                0] + KATA_SIZE[j] + OFFSET):
+                DEAD = True
+
+
+        if DEAD:
+            player_dead_rect = player_dead.get_rect(bottomleft=(player_rect.left, player_rect.bottom))
+            screen.blit(player_dead, player_dead_rect)
+        else:
+            screen.blit(player_image, player_rect)
 
 
         VELOCITY += GRAVITY
@@ -130,8 +169,8 @@ while True:
             LEFT = False
         for i in range(len(WALL_POS)):
             j = 0
-            if len(WALL_POS) - 1 == i:
-                j = 1;
+            if len(WALL_POS)-1 == i:
+                j = 1
             if ((player_rect.top < WALL_POS[i][1] - WALL_SIZE[(j+1)%2] and player_rect.bottom > WALL_POS[i][
                 1]) or (player_rect.top < WALL_POS[i][1] and player_rect.top > WALL_POS[i][1] - WALL_SIZE[
                 (j+1)%2]) or (player_rect.bottom > WALL_POS[i][1] - WALL_SIZE[(j+1)%2] and player_rect.bottom < WALL_POS[i][
@@ -147,7 +186,7 @@ while True:
         for i in range(len(WALL_POS)):
             j = 0
             if len(WALL_POS) - 1 == i:
-                j = 1;
+                j = 1
             if ((player_rect.top < WALL_POS[i][1] - WALL_SIZE[(j+1)%2] and player_rect.bottom > WALL_POS[i][
                 1]) or (player_rect.top < WALL_POS[i][1] and player_rect.top > WALL_POS[i][1] - WALL_SIZE[
                 (j+1)%2]) or (player_rect.bottom > WALL_POS[i][1] - WALL_SIZE[(j+1)%2] and player_rect.bottom < WALL_POS[i][
