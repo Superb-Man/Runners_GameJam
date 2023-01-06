@@ -67,8 +67,7 @@ def lev1():
                 j = 1
             if runners.player_rect.bottom >= runners.WALL_POS[i][1] - runners.WALL_SIZE[(j + 1) % 2] - runners.VOFFSET and runners.player_rect.bottom <= \
                     runners.WALL_POS[i][
-                        1] - runners.WALL_SIZE[(j + 1) % 2] + runners.VOFFSET and runners.player_rect.left >= runners.WALL_POS[i][0] - \
-                    runners.PLAYER_SIZE[
+                        1] - runners.WALL_SIZE[(j + 1) % 2] + runners.VOFFSET and runners.player_rect.left >= runners.WALL_POS[i][0] - runners.PLAYER_SIZE[
                         0] and runners.player_rect.right <= runners.WALL_POS[i][0] + runners.WALL_SIZE[j] + runners.PLAYER_SIZE[
                 0] and runners.VELOCITY > 0:
                 runners.player_rect.bottom = runners.WALL_POS[i][1] - runners.WALL_SIZE[(j + 1) % 2]
@@ -125,7 +124,7 @@ def lev1():
         1])) and (runners.player_rect.right > runners.BUTTON_POS[0] - runners.OFFSET and runners.player_rect.right < runners.BUTTON_POS[
         0] + runners.OFFSET):
         runners.player_rect.right = runners.BUTTON_POS[0]
-        RIGHT = False
+        runners.RIGHT = False
     elif ((runners.player_rect.top < runners.door_rect.bottom - runners.DOOR_SIZE[1] and runners.player_rect.bottom > runners.door_rect.bottom) or (
            runners.player_rect.top < runners.door_rect.bottom and runners.player_rect.top > runners.door_rect.bottom - runners.DOOR_SIZE[
         1]) or (runners.player_rect.bottom > runners.door_rect.bottom - runners.DOOR_SIZE[
@@ -134,6 +133,7 @@ def lev1():
         0] + runners.OFFSET):
         runners.player_rect.right = runners.DOOR_POS[0]
         runners.RIGHT = False
+    
 
     for i in range(len(runners.WALL_POS)):
         j = 0

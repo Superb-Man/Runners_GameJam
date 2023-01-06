@@ -1,5 +1,4 @@
 import pygame
-import Level1
 pygame.init()
 
 RIGHTDIRECTION = 0
@@ -14,13 +13,14 @@ KATA_SIZE = (15, 30)
 DOOR_SIZE = (10, 65)
 PLAYER_POS = (0, 180)
 DOOR_POS = (790, 220)
+CDOOR_POS = (790, 155)
 BUTTON_SIZE = (80, 20)
 BUTTON_POS = (400, 260)
 
 pygame.display.set_caption("Runners")
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
-bg_image = pygame.image.load('Assets/Images/bg.jpg').convert()
+bg_image = pygame.image.load('Assets/Images/bg.jpg').convert_alpha()
 bg_image = pygame.transform.scale(bg_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 bg_image_rect=bg_image.get_rect()
@@ -87,20 +87,19 @@ door = pygame.image.load('Assets/Images/door.jpg').convert_alpha()
 door = pygame.transform.scale(door, DOOR_SIZE)
 door.set_colorkey(BLACK)
 door_rect = door.get_rect(bottomleft = DOOR_POS)
+cdoor_rect = door.get_rect(bottomleft = CDOOR_POS)
 
 button = pygame.image.load('Assets/Images/b.jpg').convert_alpha()
 button = pygame.transform.scale(button, BUTTON_SIZE)
 button.set_colorkey(BLACK)
 button_rect = button.get_rect(bottomleft = BUTTON_POS)
 
-WALL_POS = [(0, 200),
-            (140, 320),
-            (265, 125),
-            (305, 125),
-            (615, 120),
-            (625, 300),
-            (760, 155),
-            (760, 240),
+WALL_POS = [(0, 200), (140, 320),
+            (265, 125), (305, 125),
+            (615, 120), (625, 300),
+            (760, 155), (760, 240),
+            (760, 410), (720, 410), 
+            (760, 350),
             (450, 450)
             ]
 
@@ -153,11 +152,20 @@ def deathAnimation():
 
 door_index = 0
 def doorOpen():
-    global door_index, door, door_rect, door_sz
+    global door_index, door, door_rect
     door_index += 0.5
-    if door_rect.bottom >= DOOR_POS[1]-DOOR_SIZE[1]:
+    if door_rect.bottom >= CDOOR_POS[1]:
         sz = (int)(door_index)
         door_rect.bottom -= sz
+    if door_index > 1:
+        door_index = 0
+
+def doorClose():
+    global door_index, door, cdoor_rect
+    door_index += 0.5
+    if cdoor_rect.bottom <= DOOR_POS[1]:
+        sz = (int)(door_index)
+        cdoor_rect.bottom += sz
     if door_index > 1:
         door_index = 0
 
@@ -174,13 +182,17 @@ def kataDeath(KATA):
     return False
 
 
-multipleKata(3, 80, 450)
+multipleKata(5, 0, 450)
+multipleKata(4, 270, 450)
 multipleKata(5, 500, 450)
 ultaMultipleKata(5, 267, 155)
 ultaMultipleKata(2, 630, 330)
+ultaMultipleKata(3, 80, 30)
+ultaMultipleKata(4, 680, 30)
+
 
 GRAVITY = 0.1
-LEVEL = 1
+LEVEL = 0
 VELOCITY = 0
 SIDEMOVE = 2
 SCENESHIFT = False
@@ -195,9 +207,685 @@ BUTTONPRESS = False
 BG = True
 BG2 = False
 
+def level1():
+    global SCENESHIFT, door_rect, BUTTONPRESS, DEAD, DIRECTION, VELOCITY, JUMP, BG, RIGHT, player_rect, SCREEN_WIDTH
+    screen.blit(door, door_rect)
+    screen.blit(button, button_rect)
+
+    # Door open
+    if BUTTONPRESS:
+        doorOpen()
+
+    # Wall
+    for i in range(len(WALL_POS)):
+        if len(WALL_POS) - 1 == i:
+            screen.blit(vwall, wall_rect[i])
+        else:
+            screen.blit(wall, wall_rect[i])
+
+    # Kata
+    for i in range(len(KATA_POS)):
+        screen.blit(kata, kata_rect[i])
+    for i in range(len(ULTAKATA_POS)):
+        screen.blit(ultakata, ultakata_rect[i])
+
+    # Dead with Kata
+    if not DEAD:
+        DEAD = kataDeath(KATA_POS)
+    if not DEAD:
+        DEAD = kataDeath(ULTAKATA_POS)
+
+    # Death Animation/Player Image Load
+    if DEAD:
+        player_dead_rect = player_dead.get_rect(bottomleft=(player_rect.left, player_rect.bottom))
+        dead_image = dead_img[DIRECTION]
+        screen.blit(dead_image, player_dead_rect)
+        deathAnimation()
+    else:
+        player_image = players[int(player_index) % 3 + 3 * DIRECTION]
+        screen.blit(player_image, player_rect)
+
+    # Vertical Movement
+    VELOCITY += GRAVITY
+    if player_rect.bottom >= 450:
+        player_rect.bottom = 450
+        VELOCITY = 0
+        JUMP = True
+    elif player_rect.top < 0:
+        player_rect.top = 0
+        VELOCITY = 0
+        JUMP = False
+    elif player_rect.bottom >= BUTTON_POS[1] - BUTTON_SIZE[1] - VOFFSET and player_rect.bottom <= BUTTON_POS[
+        1] - BUTTON_SIZE[1] + VOFFSET and player_rect.left >= BUTTON_POS[0] - PLAYER_SIZE[
+        0] and player_rect.right <= BUTTON_POS[0] + BUTTON_SIZE[0] + PLAYER_SIZE[0] and VELOCITY > 0:
+        player_rect.bottom = BUTTON_POS[1] - BUTTON_SIZE[1]
+        VELOCITY = 0
+        JUMP = True
+        BUTTONPRESS = True
+    elif player_rect.top >= BUTTON_POS[1] - VOFFSET and player_rect.top <= BUTTON_POS[
+        1] + VOFFSET and player_rect.left >= BUTTON_POS[0] - PLAYER_SIZE[
+        0] and player_rect.right <= BUTTON_POS[0] + BUTTON_SIZE[0] + PLAYER_SIZE[0] and VELOCITY < 0:
+        player_rect.top = BUTTON_POS[1]
+        VELOCITY = 0
+    else:
+        for i in range(len(WALL_POS)):
+            j = 0
+            if len(WALL_POS) - 1 == i:
+                j = 1
+            if player_rect.bottom >= WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] - VOFFSET and player_rect.bottom <= \
+                    WALL_POS[i][
+                        1] - WALL_SIZE[(j + 1) % 2] + VOFFSET and player_rect.left >= WALL_POS[i][0] - \
+                    PLAYER_SIZE[
+                        0] and player_rect.right <= WALL_POS[i][0] + WALL_SIZE[j] + PLAYER_SIZE[
+                0] and VELOCITY > 0:
+                player_rect.bottom = WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2]
+                VELOCITY = 0
+                JUMP = True
+            elif player_rect.top >= WALL_POS[i][1] - VOFFSET and player_rect.top <= WALL_POS[i][
+                1] + VOFFSET and player_rect.left >= WALL_POS[i][0] - PLAYER_SIZE[
+                0] and player_rect.right <= WALL_POS[i][0] + WALL_SIZE[j] + PLAYER_SIZE[0] and VELOCITY < 0:
+                player_rect.top = WALL_POS[i][1]
+                VELOCITY = 0
+    player_rect.bottom += VELOCITY
+
+    # Left Movement
+    LEFT = True
+    if player_rect.left <= 2:
+        player_rect.left = 2
+        LEFT = False
+    elif ((player_rect.top < BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom > BUTTON_POS[1]) or (
+            player_rect.top < BUTTON_POS[1] and player_rect.top > BUTTON_POS[1] - BUTTON_SIZE[1]) or (
+                    player_rect.bottom > BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom < BUTTON_POS[
+                1])) and (
+            player_rect.left > BUTTON_POS[0] + BUTTON_SIZE[0] - OFFSET and player_rect.left < BUTTON_POS[
+        0] + BUTTON_SIZE[0] + OFFSET):
+        player_rect.left = BUTTON_POS[0] + BUTTON_SIZE[0]
+        LEFT = False
+    for i in range(len(WALL_POS)):
+        j = 0
+        if len(WALL_POS) - 1 == i:
+            j = 1
+        if ((player_rect.top < WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom > WALL_POS[i][
+            1]) or (player_rect.top < WALL_POS[i][1] and player_rect.top > WALL_POS[i][1] - WALL_SIZE[
+            (j + 1) % 2]) or (
+                    player_rect.bottom > WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom <
+                    WALL_POS[i][
+                        1])) and (
+                player_rect.left > WALL_POS[i][0] + WALL_SIZE[j] - OFFSET and player_rect.left < WALL_POS[i][
+            0] + WALL_SIZE[j] + OFFSET):
+            player_rect.left = WALL_POS[i][0] + WALL_SIZE[j]
+            LEFT = False
+
+    # Right Movement
+    RIGHT = True
+    if player_rect.right >= SCREEN_WIDTH - 2:
+        if (player_rect.top >= DOOR_POS[1] - DOOR_SIZE[1] - OFFSET and player_rect.bottom <= DOOR_POS[
+            1] + OFFSET) and SCENESHIFT == False:
+            SCENESHIFT = True
+        else:
+            player_rect.right = SCREEN_WIDTH - 2
+            RIGHT = False
+
+    elif ((player_rect.top < BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom > BUTTON_POS[
+        1]) or (player_rect.top < BUTTON_POS[1] and player_rect.top > BUTTON_POS[1] - BUTTON_SIZE[
+        1]) or (player_rect.bottom > BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom < BUTTON_POS[
+        1])) and (player_rect.right > BUTTON_POS[0] - OFFSET and player_rect.right < BUTTON_POS[
+        0] + OFFSET):
+        player_rect.right = BUTTON_POS[0]
+        RIGHT = False
+    elif ((player_rect.top < door_rect.bottom - DOOR_SIZE[1] and player_rect.bottom > door_rect.bottom) or (
+            player_rect.top < door_rect.bottom and player_rect.top > door_rect.bottom - DOOR_SIZE[
+        1]) or (player_rect.bottom > door_rect.bottom - DOOR_SIZE[
+        1] and player_rect.bottom < door_rect.bottom)) and (
+            player_rect.right > DOOR_POS[0] - OFFSET and player_rect.right < DOOR_POS[
+        0] + OFFSET):
+        player_rect.right = DOOR_POS[0]
+        RIGHT = False
+
+    for i in range(len(WALL_POS)):
+        j = 0
+        if len(WALL_POS) - 1 == i:
+            j = 1
+        if ((player_rect.top < WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom > WALL_POS[i][
+            1]) or (player_rect.top < WALL_POS[i][1] and player_rect.top > WALL_POS[i][1] - WALL_SIZE[
+            (j + 1) % 2]) or (
+                    player_rect.bottom > WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom <
+                    WALL_POS[i][
+                        1])) and (
+                player_rect.right > WALL_POS[i][0] - OFFSET and player_rect.right < WALL_POS[i][
+            0] + OFFSET):
+            player_rect.right = WALL_POS[i][0]
+            RIGHT = False
+
+    # Keys pressed
+    keys = pygame.key.get_pressed()
+
+    if not DEAD:
+        if keys[pygame.K_UP] and JUMP:
+            VELOCITY = -5
+            player_rect.bottom -= 1
+            JUMP = False
+        if keys[pygame.K_LEFT] and LEFT:
+            DIRECTION = LEFTDIRECTION
+            playerAnimation()
+            player_rect.left -= SIDEMOVE
+        if keys[pygame.K_RIGHT] and RIGHT:
+            DIRECTION = RIGHTDIRECTION
+            playerAnimation()
+            player_rect.left += SIDEMOVE
+ 
+def level2():
+    global SCENESHIFT, cdoor_rect, BUTTONPRESS, DEAD, DIRECTION, VELOCITY, JUMP, BG, RIGHT, player_rect, SCREEN_WIDTH
+
+    screen.blit(door, cdoor_rect)
+    screen.blit(button, button_rect)
+
+    # Door open
+    if BUTTONPRESS:
+        doorClose()
+
+    # Wall
+    for i in range(len(WALL_POS)):
+        if len(WALL_POS)-1 == i:
+            screen.blit(vwall, wall_rect[i])
+        else:
+            screen.blit(wall, wall_rect[i])
+
+    # Kata
+    for i in range(len(KATA_POS)):
+        screen.blit(kata, kata_rect[i])
+    for i in range(len(ULTAKATA_POS)):
+        screen.blit(ultakata, ultakata_rect[i])
+
+    # Dead with Kata
+    if not DEAD:
+        DEAD = kataDeath(KATA_POS)
+    if not DEAD:
+        DEAD = kataDeath(ULTAKATA_POS)
+
+    # Death Animation/Player Image Load
+    if DEAD:
+        player_dead_rect = player_dead.get_rect(bottomleft=(player_rect.left, player_rect.bottom))
+        dead_image = dead_img[DIRECTION]
+        screen.blit(dead_image, player_dead_rect)
+        deathAnimation()
+        cdoor_rect = door.get_rect(bottomleft = CDOOR_POS)
+        BUTTONPRESS = False
+    else:
+        player_image = players[int(player_index) % 3 + 3 * DIRECTION]
+        screen.blit(player_image, player_rect)
+
+    # Vertical Movement
+    VELOCITY += GRAVITY
+    if player_rect.bottom >= 450:
+        player_rect.bottom = 450
+        VELOCITY = 0
+        JUMP = True
+    elif player_rect.top < 0:
+        player_rect.top = 0
+        VELOCITY = 0
+        JUMP = False
+    elif player_rect.bottom >= BUTTON_POS[1] - BUTTON_SIZE[1] - VOFFSET and player_rect.bottom <= BUTTON_POS[
+        1] - BUTTON_SIZE[1] + VOFFSET and player_rect.left >= BUTTON_POS[0] - PLAYER_SIZE[
+        0] and player_rect.right <= BUTTON_POS[0] + BUTTON_SIZE[0] + PLAYER_SIZE[0] and VELOCITY > 0:
+        player_rect.bottom = BUTTON_POS[1] - BUTTON_SIZE[1]
+        VELOCITY = 0
+        JUMP = True
+        BUTTONPRESS = True
+    elif player_rect.top >= BUTTON_POS[1] - VOFFSET and player_rect.top <= BUTTON_POS[
+        1] + VOFFSET and player_rect.left >= BUTTON_POS[0] - PLAYER_SIZE[
+        0] and player_rect.right <= BUTTON_POS[0] + BUTTON_SIZE[0] + PLAYER_SIZE[0] and VELOCITY < 0:
+        player_rect.top = BUTTON_POS[1]
+        VELOCITY = 0
+    else:
+        for i in range(len(WALL_POS)):
+            j = 0
+            if len(WALL_POS) - 1 == i:
+                j = 1
+            if player_rect.bottom >= WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] - VOFFSET and player_rect.bottom <= \
+                    WALL_POS[i][
+                        1] - WALL_SIZE[(j + 1) % 2] + VOFFSET and player_rect.left >= WALL_POS[i][0] - \
+                    PLAYER_SIZE[
+                        0] and player_rect.right <= WALL_POS[i][0] + WALL_SIZE[j] + PLAYER_SIZE[
+                0] and VELOCITY > 0:
+                player_rect.bottom = WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2]
+                VELOCITY = 0
+                JUMP = True
+            elif player_rect.top >= WALL_POS[i][1] - VOFFSET and player_rect.top <= WALL_POS[i][
+                1] + VOFFSET and player_rect.left >= WALL_POS[i][0] - PLAYER_SIZE[
+                0] and player_rect.right <= WALL_POS[i][0] + WALL_SIZE[j] + PLAYER_SIZE[0] and VELOCITY < 0:
+                player_rect.top = WALL_POS[i][1]
+                VELOCITY = 0
+    player_rect.bottom += VELOCITY
+
+    # Left Movement
+    LEFT = True
+    if player_rect.left <= 2:
+        player_rect.left = 2
+        LEFT = False
+    elif ((player_rect.top < BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom > BUTTON_POS[1]) or (
+            player_rect.top < BUTTON_POS[1] and player_rect.top > BUTTON_POS[1] - BUTTON_SIZE[1]) or (
+                    player_rect.bottom > BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom < BUTTON_POS[
+                1])) and (
+            player_rect.left > BUTTON_POS[0] + BUTTON_SIZE[0] - OFFSET and player_rect.left < BUTTON_POS[
+        0] + BUTTON_SIZE[0] + OFFSET):
+        player_rect.left = BUTTON_POS[0] + BUTTON_SIZE[0]
+        LEFT = False
+    for i in range(len(WALL_POS)):
+        j = 0
+        if len(WALL_POS) - 1 == i:
+            j = 1
+        if ((player_rect.top < WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom > WALL_POS[i][
+            1]) or (player_rect.top < WALL_POS[i][1] and player_rect.top > WALL_POS[i][1] - WALL_SIZE[
+            (j + 1) % 2]) or (
+                    player_rect.bottom > WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom <
+                    WALL_POS[i][
+                        1])) and (
+                player_rect.left > WALL_POS[i][0] + WALL_SIZE[j] - OFFSET and player_rect.left < WALL_POS[i][
+            0] + WALL_SIZE[j] + OFFSET):
+            player_rect.left = WALL_POS[i][0] + WALL_SIZE[j]
+            LEFT = False
+
+    # Right Movement
+    RIGHT = True
+    if player_rect.right >= SCREEN_WIDTH - 2:
+        if (player_rect.top >= DOOR_POS[1] - DOOR_SIZE[1] - OFFSET and player_rect.bottom <= DOOR_POS[
+            1] + OFFSET) and SCENESHIFT == False:
+            SCENESHIFT = True
+        else:
+            player_rect.right = SCREEN_WIDTH - 2
+            RIGHT = False
+
+    elif ((player_rect.top < BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom > BUTTON_POS[
+        1]) or (player_rect.top < BUTTON_POS[1] and player_rect.top > BUTTON_POS[1] - BUTTON_SIZE[
+        1]) or (player_rect.bottom > BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom < BUTTON_POS[
+        1])) and (player_rect.right > BUTTON_POS[0] - OFFSET and player_rect.right < BUTTON_POS[
+        0] + OFFSET):
+        player_rect.right = BUTTON_POS[0]
+        RIGHT = False
+    elif ((player_rect.top < cdoor_rect.bottom - DOOR_SIZE[1] and player_rect.bottom > cdoor_rect.bottom) or (
+            player_rect.top < cdoor_rect.bottom and player_rect.top > cdoor_rect.bottom - DOOR_SIZE[
+        1]) or (player_rect.bottom > cdoor_rect.bottom - DOOR_SIZE[
+        1] and player_rect.bottom < cdoor_rect.bottom)) and (
+            player_rect.right > CDOOR_POS[0] - OFFSET and player_rect.right < CDOOR_POS[
+        0] + OFFSET):
+        player_rect.right = CDOOR_POS[0]
+        RIGHT = False
+
+    for i in range(len(WALL_POS)):
+        j = 0
+        if len(WALL_POS) - 1 == i:
+            j = 1
+        if ((player_rect.top < WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom > WALL_POS[i][
+            1]) or (player_rect.top < WALL_POS[i][1] and player_rect.top > WALL_POS[i][1] - WALL_SIZE[
+            (j + 1) % 2]) or (
+                    player_rect.bottom > WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom <
+                    WALL_POS[i][
+                        1])) and (
+                player_rect.right > WALL_POS[i][0] - OFFSET and player_rect.right < WALL_POS[i][
+            0] + OFFSET):
+            player_rect.right = WALL_POS[i][0]
+            RIGHT = False
+
+    # Keys pressed
+    keys = pygame.key.get_pressed()
+
+    if not DEAD:
+        if keys[pygame.K_UP] and JUMP:
+            VELOCITY = -5
+            player_rect.bottom -= 1
+            JUMP = False
+        if keys[pygame.K_LEFT] and LEFT:
+            DIRECTION = LEFTDIRECTION
+            playerAnimation()
+            player_rect.left -= SIDEMOVE
+        if keys[pygame.K_RIGHT] and RIGHT:
+            DIRECTION = RIGHTDIRECTION
+            playerAnimation()
+            player_rect.left += SIDEMOVE
+
+def level3():
+    global GRAVITY, SCENESHIFT, door_rect, BUTTONPRESS, DEAD, DIRECTION, VELOCITY, JUMP, BG, RIGHT, player_rect, SCREEN_WIDTH
+    GRAVITY = 0.05
+    screen.blit(door, door_rect)
+    screen.blit(button, button_rect)
+
+    # Door open
+    if BUTTONPRESS:
+        doorOpen()
+
+    # Wall
+    for i in range(len(WALL_POS)):
+        if len(WALL_POS) - 1 == i:
+            screen.blit(vwall, wall_rect[i])
+        else:
+            screen.blit(wall, wall_rect[i])
+
+    # Kata
+    for i in range(len(KATA_POS)):
+        screen.blit(kata, kata_rect[i])
+    for i in range(len(ULTAKATA_POS)):
+        screen.blit(ultakata, ultakata_rect[i])
+
+    # Dead with Kata
+    if not DEAD:
+        DEAD = kataDeath(KATA_POS)
+    if not DEAD:
+        DEAD = kataDeath(ULTAKATA_POS)
+
+    # Death Animation/Player Image Load
+    if DEAD:
+        player_dead_rect = player_dead.get_rect(bottomleft=(player_rect.left, player_rect.bottom))
+        dead_image = dead_img[DIRECTION]
+        screen.blit(dead_image, player_dead_rect)
+        deathAnimation()
+    else:
+        player_image = players[int(player_index) % 3 + 3 * DIRECTION]
+        screen.blit(player_image, player_rect)
+
+    # Vertical Movement
+    VELOCITY += GRAVITY
+    if player_rect.bottom >= 450:
+        player_rect.bottom = 450
+        VELOCITY = 0
+        JUMP = True
+    elif player_rect.top < 0:
+        player_rect.top = 0
+        VELOCITY = 0
+        JUMP = False
+    elif player_rect.bottom >= BUTTON_POS[1] - BUTTON_SIZE[1] - VOFFSET and player_rect.bottom <= BUTTON_POS[
+        1] - BUTTON_SIZE[1] + VOFFSET and player_rect.left >= BUTTON_POS[0] - PLAYER_SIZE[
+        0] and player_rect.right <= BUTTON_POS[0] + BUTTON_SIZE[0] + PLAYER_SIZE[0] and VELOCITY > 0:
+        player_rect.bottom = BUTTON_POS[1] - BUTTON_SIZE[1]
+        VELOCITY = 0
+        JUMP = True
+        BUTTONPRESS = True
+    elif player_rect.top >= BUTTON_POS[1] - VOFFSET and player_rect.top <= BUTTON_POS[
+        1] + VOFFSET and player_rect.left >= BUTTON_POS[0] - PLAYER_SIZE[
+        0] and player_rect.right <= BUTTON_POS[0] + BUTTON_SIZE[0] + PLAYER_SIZE[0] and VELOCITY < 0:
+        player_rect.top = BUTTON_POS[1]
+        VELOCITY = 0
+    else:
+        for i in range(len(WALL_POS)):
+            j = 0
+            if len(WALL_POS) - 1 == i:
+                j = 1
+            if player_rect.bottom >= WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] - VOFFSET and player_rect.bottom <= \
+                    WALL_POS[i][
+                        1] - WALL_SIZE[(j + 1) % 2] + VOFFSET and player_rect.left >= WALL_POS[i][0] - \
+                    PLAYER_SIZE[
+                        0] and player_rect.right <= WALL_POS[i][0] + WALL_SIZE[j] + PLAYER_SIZE[
+                0] and VELOCITY > 0:
+                player_rect.bottom = WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2]
+                VELOCITY = 0
+                JUMP = True
+            elif player_rect.top >= WALL_POS[i][1] - VOFFSET and player_rect.top <= WALL_POS[i][
+                1] + VOFFSET and player_rect.left >= WALL_POS[i][0] - PLAYER_SIZE[
+                0] and player_rect.right <= WALL_POS[i][0] + WALL_SIZE[j] + PLAYER_SIZE[0] and VELOCITY < 0:
+                player_rect.top = WALL_POS[i][1]
+                VELOCITY = 0
+    player_rect.bottom += VELOCITY
+
+    # Left Movement
+    LEFT = True
+    if player_rect.left <= 2:
+        player_rect.left = 2
+        LEFT = False
+    elif ((player_rect.top < BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom > BUTTON_POS[1]) or (
+            player_rect.top < BUTTON_POS[1] and player_rect.top > BUTTON_POS[1] - BUTTON_SIZE[1]) or (
+                    player_rect.bottom > BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom < BUTTON_POS[
+                1])) and (
+            player_rect.left > BUTTON_POS[0] + BUTTON_SIZE[0] - OFFSET and player_rect.left < BUTTON_POS[
+        0] + BUTTON_SIZE[0] + OFFSET):
+        player_rect.left = BUTTON_POS[0] + BUTTON_SIZE[0]
+        LEFT = False
+    for i in range(len(WALL_POS)):
+        j = 0
+        if len(WALL_POS) - 1 == i:
+            j = 1
+        if ((player_rect.top < WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom > WALL_POS[i][
+            1]) or (player_rect.top < WALL_POS[i][1] and player_rect.top > WALL_POS[i][1] - WALL_SIZE[
+            (j + 1) % 2]) or (
+                    player_rect.bottom > WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom <
+                    WALL_POS[i][
+                        1])) and (
+                player_rect.left > WALL_POS[i][0] + WALL_SIZE[j] - OFFSET and player_rect.left < WALL_POS[i][
+            0] + WALL_SIZE[j] + OFFSET):
+            player_rect.left = WALL_POS[i][0] + WALL_SIZE[j]
+            LEFT = False
+
+    # Right Movement
+    RIGHT = True
+    if player_rect.right >= SCREEN_WIDTH - 2:
+        if (player_rect.top >= DOOR_POS[1] - DOOR_SIZE[1] - OFFSET and player_rect.bottom <= DOOR_POS[
+            1] + OFFSET) and SCENESHIFT == False:
+            SCENESHIFT = True
+        else:
+            player_rect.right = SCREEN_WIDTH - 2
+            RIGHT = False
+
+    elif ((player_rect.top < BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom > BUTTON_POS[
+        1]) or (player_rect.top < BUTTON_POS[1] and player_rect.top > BUTTON_POS[1] - BUTTON_SIZE[
+        1]) or (player_rect.bottom > BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom < BUTTON_POS[
+        1])) and (player_rect.right > BUTTON_POS[0] - OFFSET and player_rect.right < BUTTON_POS[
+        0] + OFFSET):
+        player_rect.right = BUTTON_POS[0]
+        RIGHT = False
+    elif ((player_rect.top < door_rect.bottom - DOOR_SIZE[1] and player_rect.bottom > door_rect.bottom) or (
+            player_rect.top < door_rect.bottom and player_rect.top > door_rect.bottom - DOOR_SIZE[
+        1]) or (player_rect.bottom > door_rect.bottom - DOOR_SIZE[
+        1] and player_rect.bottom < door_rect.bottom)) and (
+            player_rect.right > DOOR_POS[0] - OFFSET and player_rect.right < DOOR_POS[
+        0] + OFFSET):
+        player_rect.right = DOOR_POS[0]
+        RIGHT = False
+
+    for i in range(len(WALL_POS)):
+        j = 0
+        if len(WALL_POS) - 1 == i:
+            j = 1
+        if ((player_rect.top < WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom > WALL_POS[i][
+            1]) or (player_rect.top < WALL_POS[i][1] and player_rect.top > WALL_POS[i][1] - WALL_SIZE[
+            (j + 1) % 2]) or (
+                    player_rect.bottom > WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom <
+                    WALL_POS[i][
+                        1])) and (
+                player_rect.right > WALL_POS[i][0] - OFFSET and player_rect.right < WALL_POS[i][
+            0] + OFFSET):
+            player_rect.right = WALL_POS[i][0]
+            RIGHT = False
+
+    # Keys pressed
+    keys = pygame.key.get_pressed()
+
+    if not DEAD:
+        if keys[pygame.K_UP] and JUMP:
+            VELOCITY = -5
+            player_rect.bottom -= 1
+            JUMP = False
+        if keys[pygame.K_LEFT] and LEFT:
+            DIRECTION = LEFTDIRECTION
+            playerAnimation()
+            player_rect.left -= SIDEMOVE
+        if keys[pygame.K_RIGHT] and RIGHT:
+            DIRECTION = RIGHTDIRECTION
+            playerAnimation()
+            player_rect.left += SIDEMOVE
+
+def level4():
+    global GRAVITY, SCENESHIFT, door_rect, BUTTONPRESS, DEAD, DIRECTION, VELOCITY, JUMP, BG, RIGHT, player_rect, SCREEN_WIDTH
+    GRAVITY = -0.08
+    screen.blit(door, door_rect)
+    screen.blit(button, button_rect)
+
+    # Door open
+    if BUTTONPRESS:
+        doorOpen()
+
+    # Wall
+    for i in range(len(WALL_POS)):
+        if len(WALL_POS) - 1 == i:
+            screen.blit(vwall, wall_rect[i])
+        else:
+            screen.blit(wall, wall_rect[i])
+
+    # Kata
+    for i in range(len(KATA_POS)):
+        screen.blit(kata, kata_rect[i])
+    for i in range(len(ULTAKATA_POS)):
+        screen.blit(ultakata, ultakata_rect[i])
+
+    # Dead with Kata
+    if not DEAD:
+        DEAD = kataDeath(KATA_POS)
+    if not DEAD:
+        DEAD = kataDeath(ULTAKATA_POS)
+
+    # Death Animation/Player Image Load
+    if DEAD:
+        player_dead_rect = player_dead.get_rect(bottomleft=(player_rect.left, player_rect.bottom))
+        dead_image = dead_img[DIRECTION]
+        screen.blit(dead_image, player_dead_rect)
+        deathAnimation()
+    else:
+        player_image = players[int(player_index) % 3 + 3 * DIRECTION]
+        screen.blit(player_image, player_rect)
+
+    # Vertical Movement
+    VELOCITY += GRAVITY
+    if player_rect.bottom >= 450:
+        player_rect.bottom = 450
+        VELOCITY = 0
+        JUMP = False
+    elif player_rect.top < 0:
+        player_rect.top = 0
+        VELOCITY = 0
+        JUMP = True
+    elif player_rect.bottom >= BUTTON_POS[1] - BUTTON_SIZE[1] - VOFFSET and player_rect.bottom <= BUTTON_POS[
+        1] - BUTTON_SIZE[1] + VOFFSET and player_rect.left >= BUTTON_POS[0] - PLAYER_SIZE[
+        0] and player_rect.right <= BUTTON_POS[0] + BUTTON_SIZE[0] + PLAYER_SIZE[0] and VELOCITY > 0:
+        player_rect.bottom = BUTTON_POS[1] - BUTTON_SIZE[1]
+        VELOCITY = 0
+        JUMP = True
+        BUTTONPRESS = True
+    elif player_rect.top >= BUTTON_POS[1] - VOFFSET and player_rect.top <= BUTTON_POS[
+        1] + VOFFSET and player_rect.left >= BUTTON_POS[0] - PLAYER_SIZE[
+        0] and player_rect.right <= BUTTON_POS[0] + BUTTON_SIZE[0] + PLAYER_SIZE[0] and VELOCITY < 0:
+        player_rect.top = BUTTON_POS[1]
+        VELOCITY = 0
+    else:
+        for i in range(len(WALL_POS)):
+            j = 0
+            if len(WALL_POS) - 1 == i:
+                j = 1
+            if player_rect.bottom >= WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] - VOFFSET and player_rect.bottom <= \
+                    WALL_POS[i][
+                        1] - WALL_SIZE[(j + 1) % 2] + VOFFSET and player_rect.left >= WALL_POS[i][0] - \
+                    PLAYER_SIZE[
+                        0] and player_rect.right <= WALL_POS[i][0] + WALL_SIZE[j] + PLAYER_SIZE[
+                0] and VELOCITY > 0:
+                player_rect.bottom = WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2]
+                VELOCITY = 0
+                JUMP = False
+            elif player_rect.top >= WALL_POS[i][1] - VOFFSET and player_rect.top <= WALL_POS[i][
+                1] + VOFFSET and player_rect.left >= WALL_POS[i][0] - PLAYER_SIZE[
+                0] and player_rect.right <= WALL_POS[i][0] + WALL_SIZE[j] + PLAYER_SIZE[0] and VELOCITY < 0:
+                player_rect.top = WALL_POS[i][1]
+                VELOCITY = 0
+                JUMP = True
+    player_rect.bottom += VELOCITY
+
+    # Left Movement
+    LEFT = True
+    if player_rect.left <= 2:
+        player_rect.left = 2
+        LEFT = False
+    elif ((player_rect.top < BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom > BUTTON_POS[1]) or (
+            player_rect.top < BUTTON_POS[1] and player_rect.top > BUTTON_POS[1] - BUTTON_SIZE[1]) or (
+                    player_rect.bottom > BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom < BUTTON_POS[
+                1])) and (
+            player_rect.left > BUTTON_POS[0] + BUTTON_SIZE[0] - OFFSET and player_rect.left < BUTTON_POS[
+        0] + BUTTON_SIZE[0] + OFFSET):
+        player_rect.left = BUTTON_POS[0] + BUTTON_SIZE[0]
+        LEFT = False
+    for i in range(len(WALL_POS)):
+        j = 0
+        if len(WALL_POS) - 1 == i:
+            j = 1
+        if ((player_rect.top < WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom > WALL_POS[i][
+            1]) or (player_rect.top < WALL_POS[i][1] and player_rect.top > WALL_POS[i][1] - WALL_SIZE[
+            (j + 1) % 2]) or (
+                    player_rect.bottom > WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom <
+                    WALL_POS[i][
+                        1])) and (
+                player_rect.left > WALL_POS[i][0] + WALL_SIZE[j] - OFFSET and player_rect.left < WALL_POS[i][
+            0] + WALL_SIZE[j] + OFFSET):
+            player_rect.left = WALL_POS[i][0] + WALL_SIZE[j]
+            LEFT = False
+
+    # Right Movement
+    RIGHT = True
+    if player_rect.right >= SCREEN_WIDTH - 2:
+        if (player_rect.top >= DOOR_POS[1] - DOOR_SIZE[1] - OFFSET and player_rect.bottom <= DOOR_POS[
+            1] + OFFSET) and SCENESHIFT == False:
+            SCENESHIFT = True
+        else:
+            player_rect.right = SCREEN_WIDTH - 2
+            RIGHT = False
+
+    elif ((player_rect.top < BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom > BUTTON_POS[
+        1]) or (player_rect.top < BUTTON_POS[1] and player_rect.top > BUTTON_POS[1] - BUTTON_SIZE[
+        1]) or (player_rect.bottom > BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom < BUTTON_POS[
+        1])) and (player_rect.right > BUTTON_POS[0] - OFFSET and player_rect.right < BUTTON_POS[
+        0] + OFFSET):
+        player_rect.right = BUTTON_POS[0]
+        RIGHT = False
+    elif ((player_rect.top < door_rect.bottom - DOOR_SIZE[1] and player_rect.bottom > door_rect.bottom) or (
+            player_rect.top < door_rect.bottom and player_rect.top > door_rect.bottom - DOOR_SIZE[
+        1]) or (player_rect.bottom > door_rect.bottom - DOOR_SIZE[
+        1] and player_rect.bottom < door_rect.bottom)) and (
+            player_rect.right > DOOR_POS[0] - OFFSET and player_rect.right < DOOR_POS[
+        0] + OFFSET):
+        player_rect.right = DOOR_POS[0]
+        RIGHT = False
+
+    for i in range(len(WALL_POS)):
+        j = 0
+        if len(WALL_POS) - 1 == i:
+            j = 1
+        if ((player_rect.top < WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom > WALL_POS[i][
+            1]) or (player_rect.top < WALL_POS[i][1] and player_rect.top > WALL_POS[i][1] - WALL_SIZE[
+            (j + 1) % 2]) or (
+                    player_rect.bottom > WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom <
+                    WALL_POS[i][
+                        1])) and (
+                player_rect.right > WALL_POS[i][0] - OFFSET and player_rect.right < WALL_POS[i][
+            0] + OFFSET):
+            player_rect.right = WALL_POS[i][0]
+            RIGHT = False
+
+    # Keys pressed
+    keys = pygame.key.get_pressed()
+
+    if not DEAD:
+        if keys[pygame.K_UP] and JUMP:
+            VELOCITY = 5
+            player_rect.bottom += 1
+            JUMP = False
+        if keys[pygame.K_LEFT] and LEFT:
+            DIRECTION = LEFTDIRECTION
+            playerAnimation()
+            player_rect.left -= SIDEMOVE
+        if keys[pygame.K_RIGHT] and RIGHT:
+            DIRECTION = RIGHTDIRECTION
+            playerAnimation()
+            player_rect.left += SIDEMOVE
+         
+
+
 def play():
     #global GRAVITY, LEVEL, VELOCITY, SIDEMOVE, SCENESHIFT, OFFSET, VOFFSET, JUMP, LEFT, RIGHT,DEAD, DIRECTION, BUTTONPRESS, BG, BG2
-    global SCENESHIFT, door_rect, BUTTONPRESS, DEAD, DIRECTION, VELOCITY, JUMP, BG
+    global SCENESHIFT, door_rect, BUTTONPRESS, DEAD, DIRECTION, VELOCITY, JUMP, BG, RIGHT, player_rect, SCREEN_WIDTH
     LEVEL = 1
     while True:
         for event in pygame.event.get():
@@ -206,208 +894,51 @@ def play():
                 exit()
 
         if SCENESHIFT == False:
-
             screen.blit(bg_image, bg_image_rect)
             screen.blit(bg_image1, bg_image1_rect)
-        #     screen.blit(door, door_rect)
-        #     screen.blit(button, button_rect)
-        #
-        #     # Door open
-        #     if BUTTONPRESS:
-        #         doorOpen()
-        #
-        #     # Wall
-        #     for i in range(len(WALL_POS)):
-        #         if len(WALL_POS) - 1 == i:
-        #             screen.blit(vwall, wall_rect[i])
-        #         else:
-        #             screen.blit(wall, wall_rect[i])
-        #
-        #     # Kata
-        #     for i in range(len(KATA_POS)):
-        #         screen.blit(kata, kata_rect[i])
-        #     for i in range(len(ULTAKATA_POS)):
-        #         screen.blit(ultakata, ultakata_rect[i])
-        #
-        #     # Dead with Kata
-        #     if not DEAD:
-        #         DEAD = kataDeath(KATA_POS)
-        #     if not DEAD:
-        #         DEAD = kataDeath(ULTAKATA_POS)
-        #
-        #     # Death Animation/Player Image Load
-        #     if DEAD:
-        #         player_dead_rect = player_dead.get_rect(bottomleft=(player_rect.left, player_rect.bottom))
-        #         dead_image = dead_img[DIRECTION]
-        #         screen.blit(dead_image, player_dead_rect)
-        #         deathAnimation()
-        #     else:
-        #         player_image = players[int(player_index) % 3 + 3 * DIRECTION]
-        #         screen.blit(player_image, player_rect)
-        #
-        #     # Vertical Movement
-        #     VELOCITY += GRAVITY
-        #     if player_rect.bottom >= 450:
-        #         player_rect.bottom = 450
-        #         VELOCITY = 0
-        #         JUMP = True
-        #     elif player_rect.top < 0:
-        #         player_rect.top = 0
-        #         VELOCITY = 0
-        #         JUMP = False
-        #     elif player_rect.bottom >= BUTTON_POS[1] - BUTTON_SIZE[1] - VOFFSET and player_rect.bottom <= BUTTON_POS[
-        #         1] - BUTTON_SIZE[1] + VOFFSET and player_rect.left >= BUTTON_POS[0] - PLAYER_SIZE[
-        #         0] and player_rect.right <= BUTTON_POS[0] + BUTTON_SIZE[0] + PLAYER_SIZE[0] and VELOCITY > 0:
-        #         player_rect.bottom = BUTTON_POS[1] - BUTTON_SIZE[1]
-        #         VELOCITY = 0
-        #         JUMP = True
-        #         BUTTONPRESS = True
-        #     elif player_rect.top >= BUTTON_POS[1] - VOFFSET and player_rect.top <= BUTTON_POS[
-        #         1] + VOFFSET and player_rect.left >= BUTTON_POS[0] - PLAYER_SIZE[
-        #         0] and player_rect.right <= BUTTON_POS[0] + BUTTON_SIZE[0] + PLAYER_SIZE[0] and VELOCITY < 0:
-        #         player_rect.top = BUTTON_POS[1]
-        #         VELOCITY = 0
-        #     else:
-        #         for i in range(len(WALL_POS)):
-        #             j = 0
-        #             if len(WALL_POS) - 1 == i:
-        #                 j = 1
-        #             if player_rect.bottom >= WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] - VOFFSET and player_rect.bottom <= \
-        #                     WALL_POS[i][
-        #                         1] - WALL_SIZE[(j + 1) % 2] + VOFFSET and player_rect.left >= WALL_POS[i][0] - \
-        #                     PLAYER_SIZE[
-        #                         0] and player_rect.right <= WALL_POS[i][0] + WALL_SIZE[j] + PLAYER_SIZE[
-        #                 0] and VELOCITY > 0:
-        #                 player_rect.bottom = WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2]
-        #                 VELOCITY = 0
-        #                 JUMP = True
-        #             elif player_rect.top >= WALL_POS[i][1] - VOFFSET and player_rect.top <= WALL_POS[i][
-        #                 1] + VOFFSET and player_rect.left >= WALL_POS[i][0] - PLAYER_SIZE[
-        #                 0] and player_rect.right <= WALL_POS[i][0] + WALL_SIZE[j] + PLAYER_SIZE[0] and VELOCITY < 0:
-        #                 player_rect.top = WALL_POS[i][1]
-        #                 VELOCITY = 0
-        #     player_rect.bottom += VELOCITY
-        #
-        #     # Left Movement
-        #     LEFT = True
-        #     if player_rect.left <= 2:
-        #         player_rect.left = 2
-        #         LEFT = False
-        #     elif ((player_rect.top < BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom > BUTTON_POS[1]) or (
-        #             player_rect.top < BUTTON_POS[1] and player_rect.top > BUTTON_POS[1] - BUTTON_SIZE[1]) or (
-        #                   player_rect.bottom > BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom < BUTTON_POS[
-        #               1])) and (
-        #             player_rect.left > BUTTON_POS[0] + BUTTON_SIZE[0] - OFFSET and player_rect.left < BUTTON_POS[
-        #         0] + BUTTON_SIZE[0] + OFFSET):
-        #         player_rect.left = BUTTON_POS[0] + BUTTON_SIZE[0]
-        #         LEFT = False
-        #     for i in range(len(WALL_POS)):
-        #         j = 0
-        #         if len(WALL_POS) - 1 == i:
-        #             j = 1
-        #         if ((player_rect.top < WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom > WALL_POS[i][
-        #             1]) or (player_rect.top < WALL_POS[i][1] and player_rect.top > WALL_POS[i][1] - WALL_SIZE[
-        #             (j + 1) % 2]) or (
-        #                     player_rect.bottom > WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom <
-        #                     WALL_POS[i][
-        #                         1])) and (
-        #                 player_rect.left > WALL_POS[i][0] + WALL_SIZE[j] - OFFSET and player_rect.left < WALL_POS[i][
-        #             0] + WALL_SIZE[j] + OFFSET):
-        #             player_rect.left = WALL_POS[i][0] + WALL_SIZE[j]
-        #             LEFT = False
-        #
-        #     # Right Movement
-        #     RIGHT = True
-        #     if player_rect.right >= SCREEN_WIDTH - 2:
-        #         if (player_rect.top >= DOOR_POS[1] - DOOR_SIZE[1] - OFFSET and player_rect.bottom <= DOOR_POS[
-        #             1] + OFFSET) and SCENESHIFT == False:
-        #             SCENESHIFT = True
-        #         else:
-        #             player_rect.right = SCREEN_WIDTH - 2
-        #             RIGHT = False
-        #
-        #     elif ((player_rect.top < BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom > BUTTON_POS[
-        #         1]) or (player_rect.top < BUTTON_POS[1] and player_rect.top > BUTTON_POS[1] - BUTTON_SIZE[
-        #         1]) or (player_rect.bottom > BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom < BUTTON_POS[
-        #         1])) and (player_rect.right > BUTTON_POS[0] - OFFSET and player_rect.right < BUTTON_POS[
-        #         0] + OFFSET):
-        #         player_rect.right = BUTTON_POS[0]
-        #         RIGHT = False
-        #     elif ((player_rect.top < door_rect.bottom - DOOR_SIZE[1] and player_rect.bottom > door_rect.bottom) or (
-        #             player_rect.top < door_rect.bottom and player_rect.top > door_rect.bottom - DOOR_SIZE[
-        #         1]) or (player_rect.bottom > door_rect.bottom - DOOR_SIZE[
-        #         1] and player_rect.bottom < door_rect.bottom)) and (
-        #             player_rect.right > DOOR_POS[0] - OFFSET and player_rect.right < DOOR_POS[
-        #         0] + OFFSET):
-        #         player_rect.right = DOOR_POS[0]
-        #         RIGHT = False
-        #
-        #     for i in range(len(WALL_POS)):
-        #         j = 0
-        #         if len(WALL_POS) - 1 == i:
-        #             j = 1
-        #         if ((player_rect.top < WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom > WALL_POS[i][
-        #             1]) or (player_rect.top < WALL_POS[i][1] and player_rect.top > WALL_POS[i][1] - WALL_SIZE[
-        #             (j + 1) % 2]) or (
-        #                     player_rect.bottom > WALL_POS[i][1] - WALL_SIZE[(j + 1) % 2] and player_rect.bottom <
-        #                     WALL_POS[i][
-        #                         1])) and (
-        #                 player_rect.right > WALL_POS[i][0] - OFFSET and player_rect.right < WALL_POS[i][
-        #             0] + OFFSET):
-        #             player_rect.right = WALL_POS[i][0]
-        #             RIGHT = False
-        #
-        #     # Keys pressed
-        #     keys = pygame.key.get_pressed()
-        #
-        #     if LEVEL:
-        #         if not DEAD:
-        #             if keys[pygame.K_UP] and JUMP:
-        #                 VELOCITY = -5
-        #                 player_rect.bottom -= 1
-        #                 JUMP = False
-        #             if keys[pygame.K_LEFT] and LEFT:
-        #                 DIRECTION = LEFTDIRECTION
-        #                 playerAnimation()
-        #                 player_rect.left -= SIDEMOVE
-        #             if keys[pygame.K_RIGHT] and RIGHT:
-        #                 DIRECTION = RIGHTDIRECTION
-        #                 playerAnimation()
-        #                 player_rect.left += SIDEMOVE
-        #
-        # if SCENESHIFT == True:
-        #     if BG:
-        #         screen.blit(bg_image, bg_image_rect)
-        #         screen.blit(bg_image1, bg_image1_rect)
-        #         bg_image_rect.x = bg_image_rect.x - 10
-        #         bg_image1_rect.x = bg_image_rect.x + SCREEN_WIDTH
-        #         player_rect.x = PLAYER_POS[0]
-        #         player_rect.y = PLAYER_POS[1] - 50
-        #         if bg_image1_rect.x == 0:
-        #             SCENESHIFT = False
-        #             door_rect = door.get_rect(bottomleft=DOOR_POS)
-        #             BUTTONPRESS = False
-        #             bg_image_rect.x = bg_image1_rect.x + SCREEN_WIDTH
-        #             BG = False
-        #             LEVEL += 1
-        #     else:
-        #         screen.blit(bg_image, bg_image_rect)
-        #         screen.blit(bg_image1, bg_image1_rect)
-        #
-        #         bg_image1_rect.x = bg_image1_rect.x - 10
-        #         bg_image_rect.x = bg_image1_rect.x + SCREEN_WIDTH
-        #         player_rect.x = player_rect.x - 10
-        #         player_rect.x = PLAYER_POS[0]
-        #         player_rect.y = PLAYER_POS[1] - 50
-        #         if bg_image_rect.x == 0:
-        #             SCENESHIFT = False
-        #             door_rect = door.get_rect(bottomleft=DOOR_POS)
-        #             BUTTONPRESS = False
-        #             bg_image1_rect.x = bg_image_rect.x + SCREEN_WIDTH
-        #             BG = True
-        #             LEVEL += 1
 
-        Level1.lev1()
+            if LEVEL == 1:
+                level1()
+            elif LEVEL == 2:
+                level2()
+            elif LEVEL == 3:
+                level3()
+            elif LEVEL == 4:
+                level4()
+            
+        if SCENESHIFT == True:
+            if BG:
+                screen.blit(bg_image, bg_image_rect)
+                screen.blit(bg_image1, bg_image1_rect)
+                bg_image_rect.x = bg_image_rect.x - 10
+                bg_image1_rect.x = bg_image_rect.x + SCREEN_WIDTH
+                player_rect.x = PLAYER_POS[0]
+                player_rect.y = PLAYER_POS[1] - 50
+                if bg_image1_rect.x == 0:
+                    SCENESHIFT = False
+                    door_rect = door.get_rect(bottomleft=DOOR_POS)
+                    BUTTONPRESS = False
+                    bg_image_rect.x = bg_image1_rect.x + SCREEN_WIDTH
+                    BG = False
+                    LEVEL += 1
+            else:
+                screen.blit(bg_image, bg_image_rect)
+                screen.blit(bg_image1, bg_image1_rect)
+        
+                bg_image1_rect.x = bg_image1_rect.x - 10
+                bg_image_rect.x = bg_image1_rect.x + SCREEN_WIDTH
+                player_rect.x = player_rect.x - 10
+                player_rect.x = PLAYER_POS[0]
+                player_rect.y = PLAYER_POS[1] - 50
+                if bg_image_rect.x == 0:
+                    SCENESHIFT = False
+                    door_rect = door.get_rect(bottomleft=DOOR_POS)
+                    BUTTONPRESS = False
+                    bg_image1_rect.x = bg_image_rect.x + SCREEN_WIDTH
+                    BG = True
+                    LEVEL += 1
+
+        
 
         pygame.display.update()
 
@@ -415,3 +946,5 @@ def play():
 
 if __name__ == '__main__':
     play()
+
+
