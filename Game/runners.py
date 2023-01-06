@@ -290,7 +290,7 @@ while True:
                 LEFT = False
 
         RIGHT = True
-        if player_rect.right >= SCREEN_WIDTH-2:
+        if player_rect.right >= SCREEN_WIDTH-2 and not (player_rect.top >= DOOR_POS[1]-DOOR_SIZE[1]-OFFSET and player_rect.bottom <= DOOR_POS[1]+OFFSET):
             player_rect.right = SCREEN_WIDTH-2
             RIGHT = False
         elif ((player_rect.top < BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom > BUTTON_POS[
