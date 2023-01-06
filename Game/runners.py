@@ -22,6 +22,14 @@ clock = pygame.time.Clock()
 bg_image = pygame.image.load('Assets/Images/bg.jpg').convert()
 bg_image = pygame.transform.scale(bg_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
+bg_image_rect=bg_image.get_rect()
+bg_image_rect.x=0
+bg_image_rect.y=0
+
+bg_image1 = bg_image
+bg_image1_rect = bg_image1.get_rect()
+
+
 def playerAnimation():
     global player_index, player_image, players
     player_index += 0.15
@@ -160,8 +168,8 @@ DEAD = False
 DEAD_TIME = 0
 DIRECTION = RIGHTDIRECTION
 BUTTONPRESS = False
-
-#def colide(x , y) :
+bg=True
+bg1=False
 
 
 while True:
@@ -171,8 +179,8 @@ while True:
             exit()
 
     if GAMESTATE == 0:
-
-        screen.blit(bg_image, (0, 0))
+        screen.blit(bg_image, bg_image_rect)
+        screen.blit(bg_image1,bg_image1_rect)
         screen.blit(door, door_rect)
 
         screen.blit(button, button_rect)
@@ -290,9 +298,20 @@ while True:
                 LEFT = False
 
         RIGHT = True
-        if player_rect.right >= SCREEN_WIDTH-2 and not (player_rect.top >= DOOR_POS[1]-DOOR_SIZE[1]-OFFSET and player_rect.bottom <= DOOR_POS[1]+OFFSET):
-            player_rect.right = SCREEN_WIDTH-2
-            RIGHT = False
+        if player_rect.right >= SCREEN_WIDTH-2 and not (player_rect.top >= DOOR_POS[1]-DOOR_SIZE[1]-OFFSET and player_rect.bottom <= DOOR_POS[1]+OFFSET) and GAMESTATE==0:
+            GAMESTATE=1
+            print(GAMESTATE)
+
+
+            # if bg_image1_rect.x==0:
+            #     bg=True
+            #     bg1=False
+            #     bg_image_rect.x=bg_image1_rect.x+SCREEN_WIDTH
+            # if bg_image_rect.x == 0:
+            #     bg1=True
+            #     bg=True
+            #     bg_image1_rect.x = bg_image_rect.x + SCREEN_WIDTH
+
         elif ((player_rect.top < BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom > BUTTON_POS[
                 1]) or (player_rect.top < BUTTON_POS[1] and player_rect.top > BUTTON_POS[1] - BUTTON_SIZE[
                 1]) or (player_rect.bottom > BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom < BUTTON_POS[
@@ -345,6 +364,36 @@ while True:
                 DIRECTION = RIGHTDIRECTION
                 playerAnimation()
                 player_rect.left += SIDEMOVE
+
+    if GAMESTATE==1:
+        if bg:
+            print(GAMESTATE)
+            screen.blit(bg_image, bg_image_rect)
+            screen.blit(bg_image1, bg_image1_rect)
+            bg_image_rect.x = bg_image_rect.x - 10
+            bg_image1_rect.x = bg_image_rect.x + SCREEN_WIDTH
+            player_rect.x = PLAYER_POS[0]
+            player_rect.y = PLAYER_POS[1]-50
+            if bg_image1_rect.x==0:
+                GAMESTATE=0
+
+                bg=False
+                bg1=True
+        elif bg1:
+            screen.blit(bg_image, bg_image_rect)
+            screen.blit(bg_image1, bg_image1_rect)
+
+            bg_image1_rect.x = bg_image1_rect.x - 10
+            bg_image_rect.x=bg_image1_rect.x+SCREEN_WIDTH
+            player_rect.x=player_rect.x-10
+            player_rect.x = PLAYER_POS[0]
+            player_rect.y = PLAYER_POS[1] - 50
+            if bg_image_rect.x == 0:
+                GAMESTATE = 0
+
+                bg = False
+                bg1 = True
+
 
 
     pygame.display.update()
