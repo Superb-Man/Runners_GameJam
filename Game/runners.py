@@ -27,6 +27,18 @@ def playerAnimation():
     player_index += 0.15
 
 
+door_index = 0
+def doorOpen():
+    global door_index, door, door_rect, door_sz
+    door_index += 0.5
+    if door_rect.bottom >= DOOR_POS[1]-DOOR_SIZE[1]:
+        sz = (int)(door_index)
+        door_rect.bottom -= sz
+    if door_index > 1:
+        door_index = 0
+
+
+
 players = []
 player_walk1 = pygame.image.load('Assets/Images/p1.jpg').convert_alpha()
 player_walk1 = pygame.transform.scale(player_walk1, PLAYER_SIZE)
@@ -162,7 +174,11 @@ while True:
 
         screen.blit(bg_image, (0, 0))
         screen.blit(door, door_rect)
+
         screen.blit(button, button_rect)
+
+        if BUTTONPRESS:
+            doorOpen()
 
         for i in range(len(WALL_POS)):
             if len(WALL_POS) - 1 == i:
@@ -227,6 +243,11 @@ while True:
             VELOCITY = 0
             JUMP = True
             BUTTONPRESS = True
+        elif player_rect.top >= BUTTON_POS[1] - VOFFSET and player_rect.top <= BUTTON_POS[
+            1] + VOFFSET and player_rect.left >= BUTTON_POS[0] - PLAYER_SIZE[
+            0] and player_rect.right <= BUTTON_POS[0] + BUTTON_SIZE[0] + PLAYER_SIZE[0] and VELOCITY < 0:
+            player_rect.top = BUTTON_POS[1]
+            VELOCITY = 0
         else:
             for i in range(len(WALL_POS)):
                 j = 0
@@ -249,7 +270,13 @@ while True:
         if player_rect.left <= 2:
             player_rect.left = 2
             LEFT = False
-        
+        elif ((player_rect.top < BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom > BUTTON_POS[1] ) or(
+            player_rect.top < BUTTON_POS[1] and player_rect.top > BUTTON_POS[1] - BUTTON_SIZE[1]) or (
+            player_rect.bottom > BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom < BUTTON_POS[1])) and (
+            player_rect.left > BUTTON_POS[0] + BUTTON_SIZE[0] - OFFSET and player_rect.left < BUTTON_POS[
+            0] + BUTTON_SIZE[0] + OFFSET):
+            player_rect.left = BUTTON_POS[0] + BUTTON_SIZE[0]
+            LEFT = False
         for i in range(len(WALL_POS)):
             j = 0
             if len(WALL_POS)-1 == i:
@@ -266,6 +293,19 @@ while True:
         if player_rect.right >= SCREEN_WIDTH-2:
             player_rect.right = SCREEN_WIDTH-2
             RIGHT = False
+        elif ((player_rect.top < BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom > BUTTON_POS[
+                1]) or (player_rect.top < BUTTON_POS[1] and player_rect.top > BUTTON_POS[1] - BUTTON_SIZE[
+                1]) or (player_rect.bottom > BUTTON_POS[1] - BUTTON_SIZE[1] and player_rect.bottom < BUTTON_POS[
+                1])) and (player_rect.right > BUTTON_POS[0] - OFFSET and player_rect.right < BUTTON_POS[
+                0] + OFFSET):
+                player_rect.right = BUTTON_POS[0]
+                RIGHT = False
+        elif ((player_rect.top < door_rect.bottom - DOOR_SIZE[1] and player_rect.bottom > door_rect.bottom) or (player_rect.top < door_rect.bottom and player_rect.top > door_rect.bottom - DOOR_SIZE[
+                1]) or (player_rect.bottom > door_rect.bottom - DOOR_SIZE[1] and player_rect.bottom < door_rect.bottom)) and (player_rect.right > DOOR_POS[0] - OFFSET and player_rect.right < DOOR_POS[
+                0] + OFFSET):
+                player_rect.right = DOOR_POS[0]
+                RIGHT = False
+
         for i in range(len(WALL_POS)):
             j = 0
             if len(WALL_POS) - 1 == i:
@@ -300,11 +340,11 @@ while True:
             if keys[pygame.K_LEFT] and LEFT:
                 DIRECTION = LEFTDIRECTION
                 playerAnimation()
-                player_rect.left -= 2
+                player_rect.left -= SIDEMOVE
             if keys[pygame.K_RIGHT] and RIGHT:
                 DIRECTION = RIGHTDIRECTION
                 playerAnimation()
-                player_rect.left += 2
+                player_rect.left += SIDEMOVE
 
 
     pygame.display.update()
