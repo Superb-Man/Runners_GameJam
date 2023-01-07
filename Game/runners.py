@@ -98,9 +98,8 @@ button_rect = button.get_rect(bottomleft = BUTTON_POS)
 WALL_POS = [(0, 200), (140, 320),
             (265, 125), (305, 125),
             (615, 120), (625, 300),
-            (760, 155), (760, 240),
-            (760, 410), (720, 410), 
-            (760, 350),
+            (760, 155), (760, 240), (740, 240),
+            (760, 410), (730, 410), (760, 350),
             (450, 450)
             ]
 
@@ -194,8 +193,11 @@ def kataDeath(KATA):
 
 
 multipleKata(5, 0, 450)
-multipleKata(4, 270, 450)
+multipleKata(2, 180, 450)
+multipleKata(4, 320, 450)
 multipleKata(5, 500, 450)
+multipleKata(2, 765, 330)
+ultaMultipleKata(2, 420, 30)
 ultaMultipleKata(5, 267, 155)
 ultaMultipleKata(2, 630, 330)
 ultaMultipleKata(3, 80, 30)
@@ -294,6 +296,8 @@ def danger_collision(danger_kata, player_rect):
 
 
 # end
+
+
 
 
 def level1():
@@ -463,7 +467,7 @@ def level1():
             DIRECTION = RIGHTDIRECTION
             playerAnimation()
             player_rect.left += SIDEMOVE
- 
+
 def level2():
     global SCENESHIFT, cdoor_rect, BUTTONPRESS, DEAD, DIRECTION, VELOCITY, JUMP, BG, RIGHT, player_rect, SCREEN_WIDTH
 
@@ -634,9 +638,12 @@ def level2():
             playerAnimation()
             player_rect.left += SIDEMOVE
 
+
+def init3():
+    global GRAVITY
+    GRAVITY = 0.15
 def level3():
     global GRAVITY, SCENESHIFT, door_rect, BUTTONPRESS, DEAD, DIRECTION, VELOCITY, JUMP, BG, RIGHT, player_rect, SCREEN_WIDTH
-    GRAVITY = 0.05
     screen.blit(door, door_rect)
     screen.blit(button, button_rect)
 
@@ -790,7 +797,7 @@ def level3():
 
     if not DEAD:
         if keys[pygame.K_UP] and JUMP:
-            VELOCITY = -5
+            VELOCITY = -5.5
             player_rect.bottom -= 1
             JUMP = False
         if keys[pygame.K_LEFT] and LEFT:
@@ -801,10 +808,15 @@ def level3():
             DIRECTION = RIGHTDIRECTION
             playerAnimation()
             player_rect.left += SIDEMOVE
+def rev3():
+    global GRAVITY
+    GRAVITY = 0.1
 
+def init4():
+    global GRAVITY
+    GRAVITY = -0.08
 def level4():
     global GRAVITY, SCENESHIFT, door_rect, BUTTONPRESS, DEAD, DIRECTION, VELOCITY, JUMP, BG, RIGHT, player_rect, SCREEN_WIDTH
-    GRAVITY = -0.08
     screen.blit(door, door_rect)
     screen.blit(button, button_rect)
 
@@ -856,12 +868,13 @@ def level4():
         0] and player_rect.right <= BUTTON_POS[0] + BUTTON_SIZE[0] + PLAYER_SIZE[0] and VELOCITY > 0:
         player_rect.bottom = BUTTON_POS[1] - BUTTON_SIZE[1]
         VELOCITY = 0
-        JUMP = True
+        JUMP = False
         BUTTONPRESS = True
     elif player_rect.top >= BUTTON_POS[1] - VOFFSET and player_rect.top <= BUTTON_POS[
         1] + VOFFSET and player_rect.left >= BUTTON_POS[0] - PLAYER_SIZE[
         0] and player_rect.right <= BUTTON_POS[0] + BUTTON_SIZE[0] + PLAYER_SIZE[0] and VELOCITY < 0:
         player_rect.top = BUTTON_POS[1]
+        JUMP = True
         VELOCITY = 0
     else:
         for i in range(len(WALL_POS)):
@@ -970,6 +983,7 @@ def level4():
             DIRECTION = RIGHTDIRECTION
             playerAnimation()
             player_rect.left += SIDEMOVE
+<<<<<<< HEAD
          
 def level5():
     global SCENESHIFT, door_rect, BUTTONPRESS, DEAD, DIRECTION, VELOCITY, JUMP, BG, RIGHT, player_rect, SCREEN_WIDTH
@@ -1391,6 +1405,14 @@ def level7(event):
     #         DIRECTION = RIGHTDIRECTION
     #         playerAnimation()
     #         player_rect.left += SIDEMOVE
+=======
+def rev4():
+    global GRAVITY, VELOCITY
+    GRAVITY = 0.1 
+    VELOCITY = 0  
+
+
+>>>>>>> 4834d3b29c4debe21ca6e0bea9432d2897f7afd5
 
 
 def play():
@@ -1424,10 +1446,18 @@ def play():
                 gamestate(2)
                 level2()
             elif LEVEL == 3:
+<<<<<<< HEAD
                 gamestate(3)
                 level3()
             elif LEVEL == 4:
                 gamestate(4)
+=======
+                init3()
+                level3()
+            elif LEVEL == 4:
+                rev3()
+                init4()
+>>>>>>> 4834d3b29c4debe21ca6e0bea9432d2897f7afd5
                 level4()
             elif LEVEL == 5 :
                 gamestate(5)
