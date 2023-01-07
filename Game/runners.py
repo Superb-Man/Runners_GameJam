@@ -551,7 +551,7 @@ def level2():
 
 def init3():
     global GRAVITY
-    GRAVITY = 0.05
+    GRAVITY = 0.15
 def level3():
     global GRAVITY, SCENESHIFT, door_rect, BUTTONPRESS, DEAD, DIRECTION, VELOCITY, JUMP, BG, RIGHT, player_rect, SCREEN_WIDTH
     screen.blit(door, door_rect)
@@ -707,7 +707,7 @@ def level3():
 
     if not DEAD:
         if keys[pygame.K_UP] and JUMP:
-            VELOCITY = -5
+            VELOCITY = -5.5
             player_rect.bottom -= 1
             JUMP = False
         if keys[pygame.K_LEFT] and LEFT:
