@@ -141,21 +141,21 @@ while True:
             # if event.type == pygame.MOUSEBUTTONUP:
             #     _Mouse_drag = False ;
 
-            if event.type ==  pygame.MOUSEBUTTONDOWN and vector==False:
-                # vector=True
-                print(vector)
-                inix,iniy=pygame.mouse.get_pos()
-                print(inix,iniy)
-
-
-            if event.type == pygame.MOUSEBUTTONUP and vector == False:
-                print(vector)
-                endx,endy=event.pos
-                if endy>=250:
-                    endy=250
-                print(endx,endy)
-                if inix>=player_rect.left and inix<=player_rect.right and iniy<=player_rect.bottom and iniy>=player_rect.top:
-                  vector = True
+            # if event.type ==  pygame.MOUSEBUTTONDOWN and vector==False:
+            #     # vector=True
+            #     print(vector)
+            #     inix,iniy=pygame.mouse.get_pos()
+            #     print(inix,iniy)
+            #
+            #
+            # if event.type == pygame.MOUSEBUTTONUP and vector == False:
+            #     print(vector)
+            #     endx,endy=event.pos
+            #     if endy>=250:
+            #         endy=250
+            #     print(endx,endy)
+            #     if inix>=player_rect.left and inix<=player_rect.right and iniy<=player_rect.bottom and iniy>=player_rect.top:
+            #       vector = True
 
 
             if event.type==obstacle_timer:
@@ -179,7 +179,7 @@ while True:
         screen.blit(ground_image,(0,300))
         
         #snail movement
-        snail_rect_list=Multiple_obstacle(snail_rect_list)
+        # snail_rect_list=Multiple_obstacle(snail_rect_list)
         
         Score_gameOver=Score()
         #player
@@ -189,12 +189,12 @@ while True:
             player_rect.left=780
         if player_rect.left==10:
             player_rect.left=20
-        if player_rect.bottom<=80:
-            player_rect.bottom=80
-            if vector == False:
-                player_gravity=player_gravity+1
+        # if player_rect.bottom<=80:
+        #     player_rect.bottom=80
+        #     if vector == False:
+        #         player_gravity=player_gravity+1
         if player_rect.bottom<=300:
-            if vector ==False :
+            if vector == False :
                 player_gravity+=0.1
                 player_rect.bottom+=player_gravity
         if player_rect.bottom>=300:
@@ -203,6 +203,22 @@ while True:
         if player_rect.x > endx - 10 and player_rect.x < endx + 10 and player_rect.y > endy - 50 and player_rect.y < endy + 50 and vector == True:
             vector = False
             player_gravity += 1
+
+        if event.type == pygame.MOUSEBUTTONDOWN and vector == False:
+            # vector=True
+            print(vector)
+            inix, iniy = pygame.mouse.get_pos()
+            print(inix, iniy)
+
+        if event.type == pygame.MOUSEBUTTONUP and vector == False:
+            print('enteriing')
+            endx, endy = event.pos
+            if endy >= 250:
+                endy = 250
+            print(endx, endy)
+            if inix >= player_rect.left and inix <= player_rect.right and iniy <= player_rect.bottom and iniy >= player_rect.top:
+                vector = True
+
         if vector:
             player_gravity = 0
             if (player_rect.x < endx):
@@ -226,18 +242,7 @@ while True:
         
         #keyboard input
         keys=pygame.key.get_pressed()
-        #print(keys)
-        # if(player_gravity==0):
-        #     not_jump=False
-        # if keys[pygame.K_UP] and not_jump==False:
-        #     player_gravity = -5
-        #     not_jump=True
-        # if keys[pygame.K_DOWN] :
-        #     player_gravity = 5
-        # if keys[pygame.K_RIGHT] :
-        #     player_rect.x+=2
-        # if keys[pygame.K_LEFT] :
-        #     player_rect.x-=2
+
     else:
         screen.fill((94,129,162))
         screen.blit(player_stand_scaled,player_stand_rect)
