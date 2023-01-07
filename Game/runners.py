@@ -904,6 +904,7 @@ def rev4():
 def play():
     #global GRAVITY, LEVEL, VELOCITY, SIDEMOVE, SCENESHIFT, OFFSET, VOFFSET, JUMP, LEFT, RIGHT,DEAD, DIRECTION, BUTTONPRESS, BG, BG2
     global SCENESHIFT, door_rect, BUTTONPRESS, DEAD, DIRECTION, VELOCITY, JUMP, BG, RIGHT, player_rect, SCREEN_WIDTH
+
     LEVEL = 1
     while True:
         for event in pygame.event.get():
@@ -959,7 +960,7 @@ def play():
                     BG = True
                     LEVEL += 1
 
-        
+
 
         pygame.display.update()
 
