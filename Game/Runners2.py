@@ -15,7 +15,11 @@ PLAYER_POS = (0, 180)
 pygame.display.set_caption("Runners")
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
+<<<<<<< HEAD
 bg_image = pygame.image.load('Game/Assets/Images/bg.jpg').convert()
+=======
+bg_image = pygame.image.load('Assets/Images/bg.jpg').convert_alpha()
+>>>>>>> 740c92bbe857071881bb0fa0d063d74cd387b8c8
 bg_image = pygame.transform.scale(bg_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # edited here foe labeling levels
