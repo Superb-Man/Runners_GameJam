@@ -15,7 +15,7 @@ PLAYER_POS = (0, 180)
 pygame.display.set_caption("Runners")
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
-bg_image = pygame.image.load('Assets/Images/bg.jpg').convert()
+bg_image = pygame.image.load('Game/Assets/Images/bg.jpg').convert()
 bg_image = pygame.transform.scale(bg_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # edited here foe labeling levels
@@ -43,13 +43,13 @@ def playerAnimation():
 
 
 players = []
-player_walk1 = pygame.image.load('Assets/Images/p1.jpg').convert_alpha()
+player_walk1 = pygame.image.load('Game/Assets/Images/p1.jpg').convert_alpha()
 player_walk1 = pygame.transform.scale(player_walk1, PLAYER_SIZE)
 player_walk1.set_colorkey(BLACK)
-player_walk2 = pygame.image.load('Assets/Images/p2.jpg').convert_alpha()
+player_walk2 = pygame.image.load('Game/Assets/Images/p2.jpg').convert_alpha()
 player_walk2 = pygame.transform.scale(player_walk2, PLAYER_SIZE)
 player_walk2.set_colorkey(BLACK)
-player_walk3 = pygame.image.load('Assets/Images/p3.jpg').convert_alpha()
+player_walk3 = pygame.image.load('Game/Assets/Images/p3.jpg').convert_alpha()
 player_walk3 = pygame.transform.scale(player_walk3, PLAYER_SIZE)
 player_walk3.set_colorkey(BLACK)
 players.append(player_walk1)
@@ -58,17 +58,17 @@ players.append(player_walk3)
 player_index = 0
 player_image = players[player_index]
 
-player_dead = pygame.image.load('Assets/Images/pd.jpg').convert_alpha()
+player_dead = pygame.image.load('Game/Assets/Images/pd.jpg').convert_alpha()
 player_dead = pygame.transform.scale(player_dead, PLAYER_SIZE)
 player_dead.set_colorkey(BLACK)
 player_dead_list = []
 player_rect = player_image.get_rect(bottomleft=PLAYER_POS)
 
-wall = pygame.image.load('Assets/Images/ww.jpg').convert_alpha()
+wall = pygame.image.load('Game/Assets/Images/ww.jpg').convert_alpha()
 wall = pygame.transform.scale(wall, WALL_SIZE)
 wall.set_colorkey(BLACK)
 
-vwall = pygame.image.load('Assets/Images/vww.jpg').convert_alpha()
+vwall = pygame.image.load('Game/Assets/Images/vww.jpg').convert_alpha()
 vwall = pygame.transform.scale(vwall, VWALL_SIZE)
 vwall.set_colorkey(BLACK)
 
@@ -88,7 +88,7 @@ for i in range(len(WALL_POS)):
     else:
         wall_rect.append(wall.get_rect(bottomleft=WALL_POS[i]))
 
-kata = pygame.image.load('Assets/Images/k22.png').convert_alpha()
+kata = pygame.image.load('Game/Assets/Images/k22.png').convert_alpha()
 kata = pygame.transform.scale(kata, KATA_SIZE)
 # kata.set_colorkey(BLACK)
 
@@ -121,8 +121,8 @@ FirstTime = False
 
 # start
 # danger fall
-danger_kata1 = pygame.transform.scale(pygame.image.load('Assets/Images/k4.png'), (20, 20))
-danger_kata2 = pygame.transform.scale(pygame.image.load('Assets/Images/k5.png'), (20, 20))
+danger_kata1 = pygame.transform.scale(pygame.image.load('Game/Assets/Images/k4.png'), (20, 20))
+danger_kata2 = pygame.transform.scale(pygame.image.load('Game/Assets/Images/k5.png'), (20, 20))
 danger_kata = []
 dangerevent = pygame.USEREVENT + 1
 danger_freq = 1500
