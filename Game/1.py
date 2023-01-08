@@ -251,7 +251,7 @@ ultaMultipleKata(4, 680, 30)
 
 
 GRAVITY = 0.1
-LEVEL = 0
+LEVEL = 4
 VELOCITY = 0
 SIDEMOVE = 2
 SCENESHIFT = False
@@ -277,43 +277,46 @@ font = pygame.font.SysFont(None, 40)
 def gamestate(state = 0):
     if state == -1 :
         state_font = font.render(f'Press SPACE to start New game', False, 'Skyblue')
-        state_font_rect = state_font.get_rect(center=(355, 250))
+        state_font_rect = state_font.get_rect(center=(400, 400))
+        Game_name = font.render(f'Escape from Death', False, 'white')
+        Game_name_rect = Game_name.get_rect(center=(400, 250))
         screen.blit(state_font, state_font_rect)
+        screen.blit(Game_name, Game_name_rect)
         # if START == 1 and RESUME == 0 and PAUSE == 1 :
         #     state_font = font.render(f'Press C to Continue', False, 'Skyblue')
         #     state_font_rect = state_font.get_rect(center=(355, 290))
         #     screen.blit(state_font, state_font_rect)
     elif state == 0:
         state_font = font.render(f'{state + 1}.Simple', False, 'white')
-        state_font_rect = state_font.get_rect(center=(100, 50))
+        state_font_rect = state_font.get_rect(bottomleft=(50, 60))
         screen.blit(state_font, state_font_rect)
     elif state == 1:
         state_font = font.render(f'{state + 1}.Look Closer', False, 'white')
-        state_font_rect = state_font.get_rect(center=(100, 50))
+        state_font_rect = state_font.get_rect(bottomleft=(50, 60))
         screen.blit(state_font, state_font_rect)
     elif state == 2:
         state_font = font.render(f'{state + 1}.Gravity', False, 'white')
-        state_font_rect = state_font.get_rect(center=(100, 50))
+        state_font_rect = state_font.get_rect(bottomleft=(50, 60))
         screen.blit(state_font, state_font_rect)
     elif state == 3:
         state_font = font.render(f'{state + 1}.Try in another way', False, 'white')
-        state_font_rect = state_font.get_rect(center=(100, 50))
+        state_font_rect = state_font.get_rect(bottomleft=(50, 60))
         screen.blit(state_font, state_font_rect)
     elif state == 4:
         state_font = font.render(f'{state + 1}.Shift', False, 'white')
-        state_font_rect = state_font.get_rect(center=(100, 50))
+        state_font_rect = state_font.get_rect(bottomleft=(50, 60))
         screen.blit(state_font, state_font_rect)
     elif state == 5:
         state_font = font.render(f'{state + 1}. Danger', False, 'white')
-        state_font_rect = state_font.get_rect(center=(100, 50))
+        state_font_rect = state_font.get_rect(bottomleft=(50, 60))
         screen.blit(state_font, state_font_rect)
     elif state == 6:
         state_font = font.render(f'{state + 1}. Use Telekinisis', False, 'white')
-        state_font_rect = state_font.get_rect(center=(100, 50))
+        state_font_rect = state_font.get_rect(bottomleft=(50, 60))
         screen.blit(state_font, state_font_rect)
     elif state == 7:
         state_font = font.render(f'{state + 1}. Moving Wall', False, 'white')
-        state_font_rect = state_font.get_rect(center=(100, 50))
+        state_font_rect = state_font.get_rect(bottomleft=(50, 60))
         screen.blit(state_font, state_font_rect)
     
 
@@ -360,12 +363,6 @@ def danger_collision(danger_kata, player_rect):
 # end
 
 # moving wall
-# start
-def Moving_Wall(wall_rect):
-    yo = 1
-
-
-# end
 
 
 # telekinesis
