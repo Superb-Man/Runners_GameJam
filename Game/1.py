@@ -284,29 +284,38 @@ def gamestate(state = 0):
         #     state_font_rect = state_font.get_rect(center=(355, 290))
         #     screen.blit(state_font, state_font_rect)
     elif state == 0:
-        state_font = font.render(f'{state + 1}. Simple', False, 'white')
+        state_font = font.render(f'{state + 1}.Simple', False, 'white')
         state_font_rect = state_font.get_rect(center=(100, 50))
         screen.blit(state_font, state_font_rect)
     elif state == 1:
-        state_font = font.render(f'{state + 1}. Look Closer', False, 'white')
+        state_font = font.render(f'{state + 1}.Look Closer', False, 'white')
         state_font_rect = state_font.get_rect(center=(100, 50))
         screen.blit(state_font, state_font_rect)
     elif state == 2:
-        state_font = font.render(f'{state + 1}. Gravity', False, 'white')
+        state_font = font.render(f'{state + 1}.Gravity', False, 'white')
         state_font_rect = state_font.get_rect(center=(100, 50))
         screen.blit(state_font, state_font_rect)
     elif state == 3:
-        state_font = font.render(f'{state + 1}. Try in another way', False, 'white')
+        state_font = font.render(f'{state + 1}.Try in another way', False, 'white')
         state_font_rect = state_font.get_rect(center=(100, 50))
         screen.blit(state_font, state_font_rect)
     elif state == 4:
-        state_font = font.render(f'{state + 1}. Shift', False, 'white')
+        state_font = font.render(f'{state + 1}.Shift', False, 'white')
         state_font_rect = state_font.get_rect(center=(100, 50))
         screen.blit(state_font, state_font_rect)
     elif state == 5:
         state_font = font.render(f'{state + 1}. Danger', False, 'white')
         state_font_rect = state_font.get_rect(center=(100, 50))
         screen.blit(state_font, state_font_rect)
+    elif state == 6:
+        state_font = font.render(f'{state + 1}. Use Telekinisis', False, 'white')
+        state_font_rect = state_font.get_rect(center=(100, 50))
+        screen.blit(state_font, state_font_rect)
+    elif state == 7:
+        state_font = font.render(f'{state + 1}. Moving Wall', False, 'white')
+        state_font_rect = state_font.get_rect(center=(100, 50))
+        screen.blit(state_font, state_font_rect)
+    
 
 
 # end
@@ -383,6 +392,7 @@ def level(LEVEL,event = None):
             GRAVITY = -0.08
 
         if LEVEL == 8:
+            gamestate(LEVEL-1)
             wall_move()
         elif LEVEL != 7:
             WALL_POS[1] = (140, 320)
@@ -609,9 +619,9 @@ def level(LEVEL,event = None):
 
 def play():
     # global GRAVITY, LEVEL, VELOCITY, SIDEMOVE, SCENESHIFT, OFFSET, VOFFSET, JUMP, LEFT, RIGHT,DEAD, DIRECTION, BUTTONPRESS, BG, BG2
-    global SCENESHIFT, door_rect, BUTTONPRESS, DEAD, DIRECTION, VELOCITY, JUMP, BG, RIGHT, player_rect, SCREEN_WIDTH, danger_freq, danger_kata, START, mousemove, collision, wall_rect
+    global LEVEL,SCENESHIFT, door_rect, BUTTONPRESS, DEAD, DIRECTION, VELOCITY, JUMP, BG, RIGHT, player_rect, SCREEN_WIDTH, danger_freq, danger_kata, START, mousemove, collision, wall_rect
 
-    LEVEL = 0
+  
     while True:
         event1 = 0
         for event in pygame.event.get():
@@ -659,6 +669,7 @@ def play():
                 if DEAD == False:
                     DEAD = danger_collision(danger_kata, player_rect)
             elif LEVEL == 7 :
+                gamestate(LEVEL - 1)
                 level(LEVEL)
 
 
@@ -680,6 +691,7 @@ def play():
                     bg_image_rect.x = bg_image1_rect.x + SCREEN_WIDTH
                     BG = False
                     LEVEL += 1
+                    LEVEL=LEVEL%9
             else:
                 screen.blit(bg_image, bg_image_rect)
                 screen.blit(bg_image1, bg_image1_rect)
@@ -696,7 +708,7 @@ def play():
                     bg_image1_rect.x = bg_image_rect.x + SCREEN_WIDTH
                     BG = True
                     LEVEL += 1
-
+                    LEVEL=LEVEL%9
         pygame.display.update()
 
         clock.tick(60)
