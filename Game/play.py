@@ -251,7 +251,7 @@ ultaMultipleKata(4, 680, 30)
 
 
 GRAVITY = 0.1
-LEVEL = 4
+LEVEL = 0
 VELOCITY = 0
 SIDEMOVE = 2
 SCENESHIFT = False
@@ -615,7 +615,6 @@ def level(LEVEL,event = None):
 
 
 def play():
-    # global GRAVITY, LEVEL, VELOCITY, SIDEMOVE, SCENESHIFT, OFFSET, VOFFSET, JUMP, LEFT, RIGHT,DEAD, DIRECTION, BUTTONPRESS, BG, BG2
     global LEVEL,SCENESHIFT, door_rect, BUTTONPRESS, DEAD, DIRECTION, VELOCITY, JUMP, BG, RIGHT, player_rect, SCREEN_WIDTH, danger_freq, danger_kata, START, mousemove, collision, wall_rect
 
   
